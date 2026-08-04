@@ -1,28 +1,35 @@
-Meeting 助手 V3.0.1 建置與安全檢查報告
-日期：2026-08-05
+Meeting 助手 V3.0.2 建置與安全檢查報告
+========================================
 
-重大修正
-- 已移除 index.html 的 Gemini API Key 輸入欄位。
-- 已移除前端 geminiApiKey localStorage、saveApiKey()、updateApiKeyStatus()。
-- 已移除前端所有帶 ?key= 的 Gemini generateContent／Files API 呼叫。
-- 錄音上傳改為：前端 → Vercel /api/gemini-upload-start → 一次性 uploadUrl → Gemini Files API。
-- 檔案狀態改由 /api/gemini-file-status 查詢。
-- 會議分析與 AI 潤稿改由 /api/gemini-generate 執行。
-- 選填的 APP_ACCESS_TOKEN 是網站存取碼，不是 Gemini API Key，且前端只暫存於 sessionStorage。
+修正目標
+- 修正「安全上傳音檔」階段出現 Failed to fetch。
+- 移除瀏覽器直接跨網域呼叫 Gemini Files API 上傳網址的流程。
+
+根因
+- V3.0.1 在 Vercel 建立 resumable upload URL 後，仍由瀏覽器直接 fetch Google upload URL。
+- 該跨網域上傳可能被 CORS、CSP、瀏覽器隱私防護或校園／企業網路攔截，fetch 只回報 Failed to fetch。
+
+V3.0.2 修正
+- 新增 api/gemini-upload-chunk.js。
+- 音檔切為 2 MiB 分段。
+- 每段以 JSON/Base64 送至本站 Vercel Function，再由 Function 轉送 Gemini。
+- 單次請求低於 Vercel Functions 4.5 MB payload 限制。
+- 伺服器嚴格限制轉送目標只能是 https://generativelanguage.googleapis.com/upload/...
+- CSP connect-src 收斂為僅允許本站。
+- Node.js 固定為 24.x。
 
 檢查結果
-- npm test：5/5 通過。
-- npm run check：通過。
-- index.html 內嵌 JavaScript 語法：通過。
-- api/ 與 lib/ JavaScript 語法：通過。
-- Vercel API 路由引用：4/4 完整。
-- 前端 Gemini Key 輸入／儲存／帶 Key URL：0。
+- npm test：7/7 通過
+- npm run check：通過
+- index.html JavaScript 語法：通過
+- api/ 與 lib/ JavaScript 語法：通過
+- 前端 Gemini API Key 欄位：0
+- 前端帶 API Key 的 Google URL：0
+- 前端直接 fetch(uploadUrl)：0
+- Vercel API 端點：5/5 完整
 
-仍需使用者在 Vercel 完成
-- GEMINI_API_KEY_1（必要）
-- GEMINI_API_KEY_2、GEMINI_API_KEY_3（選填）
-- APP_ACCESS_TOKEN（建議，若網站不公開可暫不設定）
-- 變數設定後重新 Deploy。
-
-未執行項目
-- 因未取得使用者真實 Vercel 專案與 Gemini Key，未進行線上真實錄音呼叫測試。
+部署後必要確認
+1. Vercel Environment Variables 至少有 GEMINI_API_KEY_1。
+2. GitHub 根目錄含 api/gemini-upload-chunk.js。
+3. Vercel 已重新部署最新 commit。
+4. /api 回傳端點清單含 POST /api/gemini-upload-chunk。

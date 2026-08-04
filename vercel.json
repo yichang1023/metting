@@ -12,6 +12,9 @@
     },
     "api/gemini-file-status.js": {
       "maxDuration": 30
+    },
+    "api/gemini-upload-chunk.js": {
+      "maxDuration": 60
     }
   },
   "headers": [

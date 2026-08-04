@@ -1,14 +1,6 @@
-# Meeting 助手（GitHub／Vercel 網路版 V3.0.1）
+# Meeting 助手（GitHub／Vercel 網路版 V3.0.2）
 
 這個資料夾已整理成可以直接上傳 GitHub，之後由 Vercel 連結部署的完整專案。
-
-
-## V3.0.1 重要修正
-
-- `index.html` 已完全移除 Gemini API Key 輸入欄位。
-- 前端不再讀取或保存 `geminiApiKey`。
-- 錄音上傳、檔案狀態查詢、會議分析與 AI 潤稿都改走 Vercel `/api`。
-- 選填的 `APP_ACCESS_TOKEN` 是「網站存取碼」，不是 Gemini API Key，且只暫存在目前分頁的 `sessionStorage`。
 
 ## 你現在只要做的 GitHub 步驟
 
@@ -27,7 +19,7 @@
    - `vercel.json`
    - `.gitignore`
    - `.env.example`
-7. Commit message 輸入：`Meeting Assistant V3.0.1 secure backend upload`
+7. Commit message 輸入：`Meeting Assistant V3.0.2 update`
 8. 按 `Commit changes`。
 
 > 不要把 ZIP 檔本身直接上傳 Repository；GitHub 不會自動解壓縮成專案結構。
@@ -37,9 +29,9 @@
 ```text
 瀏覽器 index.html
     ├─ /api/health
-    ├─ /api/gemini-upload-start ── Vercel 讀取三組 Gemini Key
+    ├─ /api/gemini-upload-start ── Vercel 讀取三組 Gemini Key並建立上傳工作
+    ├─ /api/gemini-upload-chunk ── 2 MiB 分段經 Vercel 安全轉送 Gemini
     ├─ /api/gemini-file-status ─── 等待音檔處理完成
-    ├─ 瀏覽器把音訊直接上傳 Gemini Files API
     └─ /api/gemini-generate ────── Vercel 呼叫 Gemini 分析
 ```
 
@@ -88,7 +80,7 @@ vercel dev
 
 ## 官方技術依據
 
-- Vercel Functions request／response body 上限為 4.5 MB，因此音訊不經 Function 本文傳送。
+- Vercel Functions request／response body 上限為 4.5 MB，因此音訊切成 2 MiB 分段，每一段分別經 Function 轉送。
 - Vercel Environment Variables 可在 Function 中由 `process.env` 讀取，修改後需重新部署。
 - Gemini Files API 用於上傳並在模型請求中引用音訊檔。
 - 預設模型設為正式可用的 `gemini-3.6-flash`，也可由 Vercel 變數更換。

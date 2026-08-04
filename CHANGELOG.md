@@ -27,3 +27,12 @@
 ## 2.1.0 — 原單機版基準
 
 - AI 潤稿、逐字稿編輯、校正學習、音檔 IndexedDB 保存等既有功能。
+
+## 3.0.2
+
+- 修正「安全上傳音檔」出現 `Failed to fetch` 的問題。
+- 移除瀏覽器直接跨網域上傳 Gemini Files API 的流程。
+- 新增 `/api/gemini-upload-chunk`，將音檔切成 2 MiB 分段後由 Vercel 後端轉送。
+- 單一請求維持低於 Vercel Functions 4.5 MB 上限。
+- 將 Node.js 版本固定為 `24.x`。
+- CSP 的 `connect-src` 收斂為僅允許本站後端。

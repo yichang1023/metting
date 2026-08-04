@@ -10,6 +10,7 @@ const required = [
   'vercel.json',
   'api/health.js',
   'api/gemini-upload-start.js',
+  'api/gemini-upload-chunk.js',
   'api/gemini-file-status.js',
   'api/gemini-generate.js',
   'lib/http.js',
@@ -29,7 +30,8 @@ const forbidden = [
   'generateContent?key=',
   'upload/v1beta/files?key=',
   'localStorage.setItem(\'geminiApiKey\'',
-  'AIza'
+  'AIza',
+  'fetch(uploadUrl'
 ];
 for (const value of forbidden) {
   if (index.includes(value)) throw new Error(`index.html 仍含不安全字串：${value}`);
@@ -38,6 +40,7 @@ for (const value of forbidden) {
 const requiredFrontendRoutes = [
   '/api/health',
   '/api/gemini-upload-start',
+  '/api/gemini-upload-chunk',
   '/api/gemini-file-status',
   '/api/gemini-generate'
 ];
@@ -70,6 +73,6 @@ for (const dir of ['api', 'lib']) {
 
 console.log('✓ 必要檔案完整');
 console.log('✓ 前端沒有 Gemini API Key 輸入欄位、儲存邏輯或帶 key 的 Google API URL');
-console.log('✓ 前端已接上四個 Vercel API 端點');
+console.log('✓ 前端已接上五個 Vercel API 端點');
 console.log('✓ 網站存取碼只暫存在 sessionStorage');
 console.log('✓ index.html 與 Vercel Functions JavaScript 語法正確');

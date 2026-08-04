@@ -1,4 +1,4 @@
-Meeting 助手 V3.0.1｜GitHub 上傳步驟
+Meeting 助手 V3.0｜GitHub 上傳步驟
 
 1. 請先解壓縮 ZIP。
 2. 到 GitHub 建立新的 Private Repository，名稱建議 meeting-assistant。
@@ -6,13 +6,10 @@ Meeting 助手 V3.0.1｜GitHub 上傳步驟
 4. 進入空白 Repository，選 Add file → Upload files。
 5. 把本資料夾「裡面的全部檔案與資料夾」拖入 GitHub。
 6. 確認 api、lib、docs、tests、scripts 資料夾與 index.html、package.json、vercel.json 都有出現。
-7. Commit message：Meeting Assistant V3.0.1 secure backend upload
+7. Commit message：Meeting Assistant V3.0 initial upload
 8. 按 Commit changes。
 
 重要：
 - 不要只上傳 ZIP；GitHub 不會替你解壓縮。
 - 不要在任何檔案填入真實 Gemini API Key。
 - 真實 Key 下一階段要填在 Vercel Environment Variables。
-
-
-V3.0.1 已確認：index.html 不再要求或保存 Gemini API Key；Key 只放 Vercel Environment Variables。

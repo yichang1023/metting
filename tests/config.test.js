@@ -56,3 +56,50 @@ test('clampInteger enforces bounds and fallback', () => {
   assert.equal(clampInteger('100', 10, 1, 20), 20);
   assert.equal(clampInteger('bad', 10, 1, 20), 10);
 });
+
+import { uploadChunkToSession } from '../lib/gemini.js';
+
+test('upload chunk rejects non-Gemini upload URL', async () => {
+  await assert.rejects(
+    uploadChunkToSession({
+      uploadUrl: 'https://example.com/upload/file',
+      offset: 0,
+      totalSize: 3,
+      dataBase64: Buffer.from('abc').toString('base64'),
+      isFinal: true
+    }),
+    (error) => error?.code === 'INVALID_UPLOAD_URL'
+  );
+});
+
+test('final upload chunk is forwarded to Gemini and returns file metadata', async () => {
+  const originalFetch = globalThis.fetch;
+  let seen = null;
+  globalThis.fetch = async (url, options) => {
+    seen = { url, options };
+    return new Response(JSON.stringify({
+      file: {
+        name: 'files/test-audio',
+        uri: 'https://generativelanguage.googleapis.com/v1beta/files/test-audio',
+        mimeType: 'audio/wav',
+        state: 'ACTIVE'
+      }
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  };
+
+  try {
+    const result = await uploadChunkToSession({
+      uploadUrl: 'https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=test',
+      offset: 0,
+      totalSize: 3,
+      dataBase64: Buffer.from('abc').toString('base64'),
+      isFinal: true
+    });
+    assert.equal(result.file.name, 'files/test-audio');
+    assert.equal(result.nextOffset, 3);
+    assert.equal(seen.options.headers['X-Goog-Upload-Command'], 'upload, finalize');
+    assert.equal(seen.options.headers['X-Goog-Upload-Offset'], '0');
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});

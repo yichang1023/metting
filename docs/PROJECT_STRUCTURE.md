@@ -7,6 +7,7 @@ meeting-assistant/
 │   ├── index.js                  # API 說明
 │   ├── health.js                 # 檢查 Vercel、模型與 Key 數量
 │   ├── gemini-upload-start.js    # 由伺服器安全建立 Gemini Files API 上傳工作
+│   ├── gemini-upload-chunk.js    # 將 2 MiB 音檔分段安全轉送至 Gemini
 │   ├── gemini-file-status.js     # 以同一 Key 檢查音檔是否已可供模型使用
 │   └── gemini-generate.js        # 由伺服器呼叫 Gemini 分析／潤稿
 ├── lib/
@@ -29,7 +30,7 @@ meeting-assistant/
 
 ## 目前資料儲存方式
 
-這個 V3.0 基礎版先保留原單機版的資料方式：
+這個 V3.0.2 基礎版先保留原單機版的資料方式：
 
 - 逐字稿、摘要、任務、筆記：瀏覽器 `localStorage`
 - 原始錄音或抽取音訊：瀏覽器 `IndexedDB`

@@ -14,6 +14,7 @@ GEMINI_API_KEY_3
 GEMINI_MODEL=gemini-3.6-flash
 GEMINI_MODEL_POLISH=gemini-3.6-flash
 APP_ACCESS_TOKEN=自行產生的長字串
+MAX_PROXY_CHUNK_BYTES=2097152
 ```
 
 ## Vercel 操作位置
@@ -46,3 +47,13 @@ https://你的網址.vercel.app/api/health
 ```
 
 若已設定 `APP_ACCESS_TOKEN`，直接開 `/api/health` 會顯示未授權；請從 Meeting 助手設定頁輸入存取碼後按「檢查連線」。
+
+## 若曾出現 Failed to fetch
+
+V3.0.2 已取消瀏覽器直接跨網域上傳 Google 的方式，改成 2 MiB 分段經 `/api/gemini-upload-chunk` 轉送。更新 GitHub 後請等待 Vercel 自動部署完成，或手動 Redeploy。
+
+部署後可開啟 `/api`，確認端點清單包含：
+
+```text
+POST /api/gemini-upload-chunk
+```
