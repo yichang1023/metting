@@ -1862,7 +1862,7 @@
                     <h3 class="settings-title">關於</h3>
                     <div class="settings-row">
                         <div class="set-label">版本</div>
-                        <div class="set-desc">Meeting 助手 v3.0.2</div>
+                        <div class="set-desc">Meeting 助手 v3.1.0</div>
                     </div>
                     <div class="settings-row" style="display: block;">
                         <div class="set-label" style="margin-bottom: 8px;">快捷鍵參考</div>
@@ -1939,6 +1939,8 @@
     </div>
 
     <div class="toast-container" id="toastContainer"></div>
+
+    <script type="module" src="/src/blob-upload.js"></script>
 
     <script>
         // --- State Management ---
@@ -2955,15 +2957,6 @@ ${buildRecognitionHints()}
             .join('');
         }
 
-        function blobToBase64(blob) {
-          return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result.split(',')[1]);
-            reader.onerror = reject;
-            reader.readAsDataURL(blob);
-          });
-        }
-
         function fileToBase64(file) {
           return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -3961,13 +3954,19 @@ ${JSON.stringify(payload, null, 0)}`;
             return new Blob([buffer], { type: 'audio/wav' });
         }
 
-        // 透過 Vercel 後端安全建立 Gemini Files API 上傳工作。
-        // API Key 不會傳到瀏覽器；瀏覽器只取得一次性 uploadUrl 與非敏感的 keySlot 編號，音檔分段由 Vercel 後端轉送。
+        // 安全音檔上傳流程：
+        // 1) 由 Vercel 核發短效上傳票證；2) 瀏覽器直傳 Vercel Private Blob；
+        // 3) Vercel 後端用 Gemini 要求的 8 MiB（或伺服器回傳粒度）分段匯入 Files API；
+        // 4) 匯入完成後立即刪除暫存 Blob。Gemini API Key 全程不會傳到瀏覽器。
         async function uploadViaFilesApi(blob, mimeType, displayName, onProgress) {
             const numBytes = blob.size;
 
-            if (onProgress) onProgress('Vercel 後端正在建立安全上傳工作…');
-            const startRes = await backendFetch('/api/gemini-upload-start', {
+            if (typeof window.uploadMeetingAudioToPrivateBlob !== 'function') {
+                throw new Error('Vercel Blob 上傳模組尚未載入，請重新整理頁面後再試。');
+            }
+
+            if (onProgress) onProgress('Vercel 後端正在核發安全上傳票證…');
+            const ticketRes = await backendFetch('/api/blob-upload-ticket', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -3977,60 +3976,44 @@ ${JSON.stringify(payload, null, 0)}`;
                 })
             });
 
-            if (!startRes.ok) {
-                throw new Error(await backendErrorMessage(startRes, '無法建立音檔上傳工作'));
+            if (!ticketRes.ok) {
+                throw new Error(await backendErrorMessage(ticketRes, '無法取得音檔上傳授權'));
+            }
+            const ticketData = await ticketRes.json();
+            if (!ticketData.ticket) {
+                throw new Error('Vercel 後端沒有回傳音檔上傳授權票證。');
             }
 
-            const session = await startRes.json();
-            const uploadUrl = session.uploadUrl;
-            const keySlot = session.keySlot;
-            if (!uploadUrl || !keySlot) {
-                throw new Error('Vercel 後端沒有回傳完整的上傳工作資訊。');
+            const blobInfo = await window.uploadMeetingAudioToPrivateBlob({
+                blob,
+                displayName,
+                ticket: ticketData.ticket,
+                onProgress
+            });
+
+            if (onProgress) onProgress('Vercel 後端正在依 Gemini 規格匯入音檔…');
+            const importRes = await backendFetch('/api/gemini-import-blob', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    blobUrl: blobInfo.url,
+                    size: numBytes,
+                    mimeType,
+                    displayName,
+                    ticket: ticketData.ticket
+                })
+            });
+
+            if (!importRes.ok) {
+                throw new Error(await backendErrorMessage(importRes, '無法將音檔匯入 Gemini Files API'));
             }
 
-            // 不讓瀏覽器直接跨網域連到 Google，避免 CORS／企業網路攔截造成 Failed to fetch。
-            // 音檔切成 2 MB 小段，逐段經過 Vercel 後端轉送；每次都低於 Vercel 4.5 MB 限制。
-            const CHUNK_BYTES = 2 * 1024 * 1024;
-            let offset = 0;
-            let info = null;
-
-            while (offset < numBytes) {
-                const end = Math.min(offset + CHUNK_BYTES, numBytes);
-                const chunkBlob = blob.slice(offset, end);
-                const isFinal = end === numBytes;
-                const pct = Math.max(1, Math.round((end / numBytes) * 100));
-
-                if (onProgress) {
-                    onProgress(`正在安全上傳音檔… ${pct}%（${(end / 1048576).toFixed(1)} / ${(numBytes / 1048576).toFixed(1)} MB）`);
-                }
-
-                const dataBase64 = await blobToBase64(chunkBlob);
-                const chunkRes = await backendFetch('/api/gemini-upload-chunk', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        uploadUrl,
-                        offset,
-                        totalSize: numBytes,
-                        dataBase64,
-                        isFinal
-                    })
-                });
-
-                if (!chunkRes.ok) {
-                    throw new Error(await backendErrorMessage(chunkRes, `音檔分段上傳失敗（${pct}%）`));
-                }
-
-                const chunkResult = await chunkRes.json();
-                if (Number(chunkResult.nextOffset) !== end) {
-                    throw new Error(`音檔分段上傳位置不一致：預期 ${end}，實際 ${chunkResult.nextOffset ?? '未知'}。`);
-                }
-                if (isFinal) info = chunkResult;
-                offset = end;
+            const imported = await importRes.json();
+            const f = imported?.file || {};
+            const keySlot = imported?.keySlot;
+            if (!f.name || !keySlot) {
+                throw new Error('Vercel 後端沒有回傳完整的 Gemini 音檔資訊。');
             }
-
-            const f = info?.file || {};
-            if (!f.name) throw new Error('Gemini Files API 沒有回傳檔案名稱。');
 
             let state = f.state || 'PROCESSING';
             let uri = f.uri || '';

@@ -1,15 +1,22 @@
 {
   "name": "meeting-assistant",
-  "version": "3.0.2",
+  "version": "3.1.0",
   "private": true,
   "type": "module",
-  "description": "Meeting 助手：會議錄音轉逐字稿與研究分析平台，使用 Vercel Functions 安全代理 Gemini API。",
+  "description": "Meeting 助手：會議錄音轉逐字稿與研究分析平台，使用 Vercel Functions、Private Blob 與 Gemini API。",
   "engines": {
     "node": "24.x"
   },
   "scripts": {
     "dev": "vercel dev",
+    "build": "vite build",
     "test": "node --test",
     "check": "node scripts/check.mjs"
+  },
+  "dependencies": {
+    "@vercel/blob": "2.6.1"
+  },
+  "devDependencies": {
+    "vite": "8.1.5"
   }
 }

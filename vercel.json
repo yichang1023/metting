@@ -1,20 +1,25 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
   "functions": {
     "api/health.js": {
       "maxDuration": 10
     },
-    "api/gemini-upload-start.js": {
+    "api/blob-upload-ticket.js": {
+      "maxDuration": 10
+    },
+    "api/blob-upload.js": {
       "maxDuration": 30
+    },
+    "api/gemini-import-blob.js": {
+      "maxDuration": 300
     },
     "api/gemini-generate.js": {
       "maxDuration": 300
     },
     "api/gemini-file-status.js": {
       "maxDuration": 30
-    },
-    "api/gemini-upload-chunk.js": {
-      "maxDuration": 60
     }
   },
   "headers": [
@@ -39,7 +44,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' https://generativelanguage.googleapis.com https://*.googleapis.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' https://blob.vercel-storage.com https://*.blob.vercel-storage.com https://generativelanguage.googleapis.com https://*.googleapis.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"
         }
       ]
     }

@@ -1,59 +1,67 @@
-# Vercel 設定清單
+# Vercel 設定
 
-## 必填環境變數
+## 一、Environment Variables
+
+至少需要：
 
 ```text
 GEMINI_API_KEY_1
+APP_ACCESS_TOKEN
+BLOB_UPLOAD_SIGNING_SECRET
 ```
 
-## 建議一起設定
+可再加入：
 
 ```text
 GEMINI_API_KEY_2
 GEMINI_API_KEY_3
-GEMINI_MODEL=gemini-3.6-flash
-GEMINI_MODEL_POLISH=gemini-3.6-flash
-APP_ACCESS_TOKEN=自行產生的長字串
-MAX_PROXY_CHUNK_BYTES=2097152
+GEMINI_MODEL
+GEMINI_MODEL_POLISH
+ALLOWED_ORIGIN
+MAX_UPLOAD_BYTES
+GEMINI_MAX_OUTPUT_TOKENS
+GEMINI_TIMEOUT_MS
+GEMINI_UPLOAD_CHUNK_TIMEOUT_MS
 ```
 
-## Vercel 操作位置
+`BLOB_UPLOAD_SIGNING_SECRET` 建議使用至少 32 字元隨機字串，不要使用 Gemini Key。
 
-1. Vercel Dashboard 選擇專案。
-2. 進入 `Settings`。
-3. 選擇 `Environment Variables`。
-4. 逐一新增上述變數。
-5. Environment 建議同時勾選 `Production`、`Preview`。
-6. 儲存後進入 `Deployments`，對最新部署按 `Redeploy`。
+## 二、建立 Vercel Private Blob
 
-環境變數的修改不會套用到已經完成的舊部署，必須重新部署。
+1. Project → Storage。
+2. Create Database / Create Store。
+3. 選 Blob。
+4. Access 選 Private。
+5. 連接目前 Project。
+6. 確認 Environment Variables 自動出現 `BLOB_READ_WRITE_TOKEN`。
 
-## 部署後檢查
+不要建立 Public Blob，因為會議錄音可能包含個人資料與研究內容。
 
-先開啟：
+## 三、部署設定
+
+- Framework Preset 可由 Vercel自動偵測 Vite。
+- Build Command 使用 `npm run build`。
+- Output Directory 由 Vite 預設為 `dist`。
+- Root Directory 必須是直接包含 `index.html` 與 `package.json` 的位置。
+
+## 四、重新部署
+
+環境變數或 Blob Store 新增後，必須建立新的部署：
 
 ```text
-https://你的網址.vercel.app/api/health
+Deployments → 最新部署右側 ⋯ → Redeploy
 ```
 
-若未設定 `APP_ACCESS_TOKEN`，應看到類似：
+## 五、健康檢查
 
-```json
-{
-  "ok": true,
-  "keyCount": 3,
-  "model": "gemini-3.6-flash"
-}
-```
-
-若已設定 `APP_ACCESS_TOKEN`，直接開 `/api/health` 會顯示未授權；請從 Meeting 助手設定頁輸入存取碼後按「檢查連線」。
-
-## 若曾出現 Failed to fetch
-
-V3.0.2 已取消瀏覽器直接跨網域上傳 Google 的方式，改成 2 MiB 分段經 `/api/gemini-upload-chunk` 轉送。更新 GitHub 後請等待 Vercel 自動部署完成，或手動 Redeploy。
-
-部署後可開啟 `/api`，確認端點清單包含：
+正常應顯示：
 
 ```text
-POST /api/gemini-upload-chunk
+keyCount: 1～3
+blobConfigured: true
+uploadTicketConfigured: true
 ```
+
+若 `blobConfigured: false`，代表 `BLOB_READ_WRITE_TOKEN` 尚未連接到目前環境。
+
+若 `uploadTicketConfigured: false`，請新增 `BLOB_UPLOAD_SIGNING_SECRET`，或確認 `APP_ACCESS_TOKEN` 已設定。

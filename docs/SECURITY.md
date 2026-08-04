@@ -1,32 +1,25 @@
-# 安全規則
+# 安全設計
 
-## 絕對禁止
+## Gemini API Key
 
-- 不得把真實 Gemini API Key 寫進 `index.html`。
-- 不得把真實 Gemini API Key 寫進 `.env.example`。
-- 不得上傳 `.env`、`.env.local` 或任何含金鑰的截圖到 GitHub。
-- 不得將 `GEMINI_API_KEY_1` 改名為任何 `PUBLIC_`、`VITE_` 或 `NEXT_PUBLIC_` 開頭的變數。
+Gemini API Key 只由 Vercel Function 的 `process.env` 讀取，不會傳到瀏覽器。
 
-## 三組 Key 的用途
+## 音檔
 
-- Key 1：主要使用。
-- Key 2：建立上傳工作失敗時的備援。
-- Key 3：第二備援與輪替。
-
-同一個音檔在 Gemini Files API 建立後，後續分析會沿用建立該檔案的 Key slot。這是為了避免三組 Key 屬於不同 Google Cloud Project 時，另一組 Key 無法讀取該 file URI。
-
-三組 Key 若都屬於同一個 Google Cloud Project，通常仍共用該 Project 的配額；它們不是把官方配額乘以三的機制。
+- 瀏覽器使用 Vercel Blob client upload 直接上傳，避免經過 Vercel Function 4.5 MB request body 限制。
+- Blob Store 必須為 Private。
+- 上傳前由受 `APP_ACCESS_TOKEN` 保護的 API 核發短效 HMAC 票證。
+- Blob client token 只允許 `audio/wav`、限定最大檔案大小、限定路徑與短效期限。
+- 後端完成或失敗後都會嘗試刪除 Private Blob 暫存音檔。
 
 ## 網站存取碼
 
-建議在 Vercel 設定：
+前端只將 `APP_ACCESS_TOKEN` 暫存在 sessionStorage，關閉分頁後清除。正式多人環境仍建議改用真正的帳號登入與使用者權限。
 
-```text
-APP_ACCESS_TOKEN=一組至少24字元的隨機字串
-```
+## 尚未涵蓋
 
-使用者進入網站後，在「設定 → Vercel API 連線」輸入同一組存取碼。存取碼只暫存在該分頁的 `sessionStorage`，關閉工作階段後需重新輸入。
-
-## 會議隱私
-
-V3.0 仍將逐字稿與音檔保存在使用者瀏覽器中。請勿在公用電腦處理含學生姓名、醫療資訊或未公開研究資料的錄音。完成後應登出電腦、關閉瀏覽器，必要時清除網站資料。
+- 多使用者帳號與角色權限
+- 雲端資料庫
+- 完整稽核紀錄
+- 每位使用者配額
+- 分散式背景工作佇列

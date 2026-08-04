@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { getConfiguredModel, getGeminiKeySlots } from '../lib/gemini.js';
+import { getConfiguredModel, getGeminiKeySlots, uploadBinaryChunkToSession } from '../lib/gemini.js';
 import { clampInteger, parseJsonBody } from '../lib/http.js';
+import { createUploadTicket, verifyUploadTicket } from '../lib/upload-ticket.js';
 
 function withEnv(values, fn) {
   const old = {};
@@ -57,22 +58,33 @@ test('clampInteger enforces bounds and fallback', () => {
   assert.equal(clampInteger('bad', 10, 1, 20), 10);
 });
 
-import { uploadChunkToSession } from '../lib/gemini.js';
+test('short-lived upload ticket can be verified and tampering is rejected', () => {
+  withEnv({ BLOB_UPLOAD_SIGNING_SECRET: '0123456789abcdef0123456789abcdef' }, () => {
+    const ticket = createUploadTicket({ size: 1234, mimeType: 'audio/wav' });
+    const payload = verifyUploadTicket(ticket);
+    assert.equal(payload.size, 1234);
+    assert.equal(payload.mimeType, 'audio/wav');
+    assert.throws(
+      () => verifyUploadTicket(`${ticket}x`),
+      (error) => error?.code === 'INVALID_UPLOAD_TICKET'
+    );
+  });
+});
 
-test('upload chunk rejects non-Gemini upload URL', async () => {
+test('binary upload rejects non-Gemini upload URL', async () => {
   await assert.rejects(
-    uploadChunkToSession({
+    uploadBinaryChunkToSession({
       uploadUrl: 'https://example.com/upload/file',
       offset: 0,
       totalSize: 3,
-      dataBase64: Buffer.from('abc').toString('base64'),
+      chunk: Buffer.from('abc'),
       isFinal: true
     }),
     (error) => error?.code === 'INVALID_UPLOAD_URL'
   );
 });
 
-test('final upload chunk is forwarded to Gemini and returns file metadata', async () => {
+test('final binary chunk is forwarded to Gemini and returns file metadata', async () => {
   const originalFetch = globalThis.fetch;
   let seen = null;
   globalThis.fetch = async (url, options) => {
@@ -88,11 +100,11 @@ test('final upload chunk is forwarded to Gemini and returns file metadata', asyn
   };
 
   try {
-    const result = await uploadChunkToSession({
+    const result = await uploadBinaryChunkToSession({
       uploadUrl: 'https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=test',
       offset: 0,
       totalSize: 3,
-      dataBase64: Buffer.from('abc').toString('base64'),
+      chunk: Buffer.from('abc'),
       isFinal: true
     });
     assert.equal(result.file.name, 'files/test-audio');

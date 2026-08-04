@@ -11,11 +11,17 @@ export default async function handler(req, res) {
     sendJson(req, res, 200, {
       ok: true,
       service: 'meeting-assistant-api',
-      version: '3.0.2',
+      version: '3.1.0',
       model: getConfiguredModel('meeting-analysis'),
       polishModel: getConfiguredModel('polish'),
       keyCount: keys.length,
       protected: Boolean(process.env.APP_ACCESS_TOKEN?.trim()),
+      blobConfigured: Boolean(process.env.BLOB_READ_WRITE_TOKEN?.trim()),
+      uploadTicketConfigured: Boolean(
+        process.env.BLOB_UPLOAD_SIGNING_SECRET?.trim()
+        || process.env.APP_ACCESS_TOKEN?.trim()
+        || process.env.SESSION_SECRET?.trim()
+      ),
       timestamp: new Date().toISOString()
     });
   } catch (error) {

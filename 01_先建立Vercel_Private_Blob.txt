@@ -1,0 +1,32 @@
+Meeting 助手 V3.1.0 新增必要設定：Vercel Private Blob
+
+為什麼需要：
+1. Vercel Function 接收的單次請求上限為 4.5 MB。
+2. Gemini resumable upload 的非最後一段，必須符合伺服器指定的分段粒度；目前實際回傳為 8 MiB。
+3. 因此不能再把 2 MiB 音檔分段逐段送進 Gemini。
+4. 正確流程是：瀏覽器直傳 Private Blob，再由 Vercel 後端以 8 MiB 分段匯入 Gemini。
+
+設定步驟：
+1. 進入 Vercel 專案。
+2. 點 Storage。
+3. 點 Create Database / Create Store。
+4. 選 Blob。
+5. Access 請選 Private，不要選 Public。
+6. 建立並連接目前 Meeting Assistant 專案。
+7. Vercel 會自動新增 BLOB_READ_WRITE_TOKEN。
+8. 到 Settings > Environment Variables 確認 BLOB_READ_WRITE_TOKEN 已存在。
+9. 另新增：
+   Key: BLOB_UPLOAD_SIGNING_SECRET
+   Value: 自行產生至少 32 字元的隨機字串
+10. 重新部署最新版本。
+
+部署後檢查：
+開啟 https://你的網址.vercel.app/api/health
+若有 APP_ACCESS_TOKEN，請先在網頁設定頁輸入網站存取碼，再按檢查連線。
+正常應看到：
+- keyCount 大於 0
+- blobConfigured: true
+- uploadTicketConfigured: true
+
+隱私：
+音檔只暫存在 Private Blob。後端成功或失敗完成 Gemini 匯入後，都會嘗試立即刪除該暫存音檔。

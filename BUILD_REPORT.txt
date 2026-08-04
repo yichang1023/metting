@@ -1,35 +1,49 @@
-Meeting 助手 V3.0.2 建置與安全檢查報告
-========================================
+Meeting 助手 V3.1.0 建置與安全檢查報告
+==================================================
 
-修正目標
-- 修正「安全上傳音檔」階段出現 Failed to fetch。
-- 移除瀏覽器直接跨網域呼叫 Gemini Files API 上傳網址的流程。
+問題原因
+- Gemini 回報：2097152 bytes 不是 8388608-byte chunk granularity 的整數倍。
+- 舊版每段 2 MiB，違反 Gemini resumable upload 對非最後分段的要求。
+- 直接改成 8 MiB 又會超過 Vercel Function 4.5 MB request body 上限。
 
-根因
-- V3.0.1 在 Vercel 建立 resumable upload URL 後，仍由瀏覽器直接 fetch Google upload URL。
-- 該跨網域上傳可能被 CORS、CSP、瀏覽器隱私防護或校園／企業網路攔截，fetch 只回報 Failed to fetch。
+修正架構
+- 瀏覽器直傳 Vercel Private Blob。
+- Vercel 後端從 Private Blob 以 Range 方式讀取。
+- 後端採用 Gemini 上傳工作回傳的 chunk granularity；缺省為 8 MiB。
+- 非最後一段嚴格對齊粒度，最後一段可小於粒度。
+- Gemini 匯入後立即嘗試刪除暫存 Blob。
 
-V3.0.2 修正
-- 新增 api/gemini-upload-chunk.js。
-- 音檔切為 2 MiB 分段。
-- 每段以 JSON/Base64 送至本站 Vercel Function，再由 Function 轉送 Gemini。
-- 單次請求低於 Vercel Functions 4.5 MB payload 限制。
-- 伺服器嚴格限制轉送目標只能是 https://generativelanguage.googleapis.com/upload/...
-- CSP connect-src 收斂為僅允許本站。
-- Node.js 固定為 24.x。
+新增檔案
+- src/blob-upload.js
+- api/blob-upload-ticket.js
+- api/blob-upload.js
+- api/gemini-import-blob.js
+- lib/upload-ticket.js
+- lib/blob-to-gemini.js
+- 01_先建立Vercel_Private_Blob.txt
+
+停用舊端點
+- api/gemini-upload-start.js 改為 HTTP 410 stub
+- api/gemini-upload-chunk.js 改為 HTTP 410 stub
 
 檢查結果
-- npm test：7/7 通過
-- npm run check：通過
-- index.html JavaScript 語法：通過
-- api/ 與 lib/ JavaScript 語法：通過
-- 前端 Gemini API Key 欄位：0
-- 前端帶 API Key 的 Google URL：0
-- 前端直接 fetch(uploadUrl)：0
-- Vercel API 端點：5/5 完整
+- Node 自動測試：8/8 通過。
+- index.html 內嵌 JavaScript 語法：通過。
+- api、lib、src JavaScript 語法：通過。
+- 前端 Gemini API Key 輸入欄位：0。
+- 前端 Gemini Key localStorage：0。
+- 前端帶 key 的 Google API URL：0。
+- 舊 2 MiB Gemini 分段路由引用：0。
+- Private Blob client upload：已接入。
+- HMAC 短效上傳票證：已接入。
 
-部署後必要確認
-1. Vercel Environment Variables 至少有 GEMINI_API_KEY_1。
-2. GitHub 根目錄含 api/gemini-upload-chunk.js。
-3. Vercel 已重新部署最新 commit。
-4. /api 回傳端點清單含 POST /api/gemini-upload-chunk。
+部署前必要條件
+1. Vercel 建立 Private Blob Store。
+2. 確認 BLOB_READ_WRITE_TOKEN 已自動加入。
+3. 新增 BLOB_UPLOAD_SIGNING_SECRET。
+4. 保留 GEMINI_API_KEY_1～3。
+5. 重新部署。
+
+限制
+- 本地環境未連接真實 Vercel Blob 與 Gemini Key，因此未執行真實音檔端到端上傳。
+- 真實部署後應先用 1～3 分鐘測試音檔驗證，再測試較長錄音。

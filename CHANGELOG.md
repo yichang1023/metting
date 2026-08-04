@@ -1,38 +1,25 @@
 # Changelog
 
-## 3.0.1 - 2026-08-05
+## 3.1.0
 
-- 修正 `index.html` 仍顯示 Gemini API Key 輸入欄位的重大問題。
-- 移除前端 `geminiApiKey`、`saveApiKey()` 與直接呼叫帶 Key 的 Google API。
-- 所有錄音分析與 AI 潤稿改由 Vercel Functions 代理。
-- 所有音檔統一由 Vercel 建立 Gemini Files API 上傳工作，再由瀏覽器使用一次性上傳網址送檔。
-- 新增 Vercel 後端健康檢查與選填網站存取碼。
-- 強化自動檢查，若前端再次出現 API Key 輸入或 `?key=` URL，建置檢查會直接失敗。
-
-## 3.0.0 — GitHub / Vercel 網路版基礎架構
-
-- 保留原單機版的儀表板、錄音上傳、逐字稿、摘要、下次作業、待辦、多加留意、老師提醒、日曆、研究進度與垃圾桶。
-- Gemini API Key 不再寫入 `index.html` 或瀏覽器 `localStorage`。
-- 新增 Vercel Functions：
-  - `GET /api/health`
-  - `POST /api/gemini-upload-start`
-  - `POST /api/gemini-file-status`
-  - `POST /api/gemini-generate`
-- 支援三組 Gemini API Key 的伺服器端選擇與文字請求故障轉移。
-- 音訊由 Vercel 建立上傳工作後，瀏覽器直接傳送至 Gemini Files API，避免 Vercel Function 4.5 MB request body 限制。
-- 新增可選的 `APP_ACCESS_TOKEN` 網站存取保護。
-- 修正 Prompt 中 speaker 規則與 JSON 範例互相矛盾的問題。
-- 保留原始逐字稿解析、截斷 JSON 修復、說話者顛倒偵測與校正詞庫。
-
-## 2.1.0 — 原單機版基準
-
-- AI 潤稿、逐字稿編輯、校正學習、音檔 IndexedDB 保存等既有功能。
+- 修正 Gemini resumable upload 的 8 MiB chunk granularity 錯誤。
+- 移除錯誤的 2 MiB Vercel Function → Gemini 分段代理。
+- 新增 Vercel Private Blob client upload。
+- 新增短效 HMAC 上傳票證。
+- 新增 `/api/blob-upload-ticket`。
+- 新增 `/api/blob-upload`。
+- 新增 `/api/gemini-import-blob`。
+- 後端依 Gemini 回傳的 `x-goog-upload-chunk-granularity` 分段匯入，缺省為 8 MiB。
+- 匯入完成或失敗後嘗試刪除暫存 Blob。
+- 新增 Vite 建置與 `@vercel/blob` 依賴。
+- 健康檢查新增 `blobConfigured` 與 `uploadTicketConfigured`。
 
 ## 3.0.2
 
-- 修正「安全上傳音檔」出現 `Failed to fetch` 的問題。
-- 移除瀏覽器直接跨網域上傳 Gemini Files API 的流程。
-- 新增 `/api/gemini-upload-chunk`，將音檔切成 2 MiB 分段後由 Vercel 後端轉送。
-- 單一請求維持低於 Vercel Functions 4.5 MB 上限。
-- 將 Node.js 版本固定為 `24.x`。
-- CSP 的 `connect-src` 收斂為僅允許本站後端。
+- 曾嘗試將音檔切成 2 MiB 後經 Vercel Function 轉送 Gemini。
+- 此方式因 Gemini 非最後分段要求 8 MiB 粒度而淘汰。
+
+## 3.0.1
+
+- 移除前端 Gemini API Key 輸入與 localStorage 保存。
+- Gemini 請求改由 Vercel Functions 代理。
