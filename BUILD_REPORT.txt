@@ -1,0 +1,28 @@
+Meeting 助手 V3.0.1 建置與安全檢查報告
+日期：2026-08-05
+
+重大修正
+- 已移除 index.html 的 Gemini API Key 輸入欄位。
+- 已移除前端 geminiApiKey localStorage、saveApiKey()、updateApiKeyStatus()。
+- 已移除前端所有帶 ?key= 的 Gemini generateContent／Files API 呼叫。
+- 錄音上傳改為：前端 → Vercel /api/gemini-upload-start → 一次性 uploadUrl → Gemini Files API。
+- 檔案狀態改由 /api/gemini-file-status 查詢。
+- 會議分析與 AI 潤稿改由 /api/gemini-generate 執行。
+- 選填的 APP_ACCESS_TOKEN 是網站存取碼，不是 Gemini API Key，且前端只暫存於 sessionStorage。
+
+檢查結果
+- npm test：5/5 通過。
+- npm run check：通過。
+- index.html 內嵌 JavaScript 語法：通過。
+- api/ 與 lib/ JavaScript 語法：通過。
+- Vercel API 路由引用：4/4 完整。
+- 前端 Gemini Key 輸入／儲存／帶 Key URL：0。
+
+仍需使用者在 Vercel 完成
+- GEMINI_API_KEY_1（必要）
+- GEMINI_API_KEY_2、GEMINI_API_KEY_3（選填）
+- APP_ACCESS_TOKEN（建議，若網站不公開可暫不設定）
+- 變數設定後重新 Deploy。
+
+未執行項目
+- 因未取得使用者真實 Vercel 專案與 Gemini Key，未進行線上真實錄音呼叫測試。
