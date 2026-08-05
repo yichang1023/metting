@@ -1,0 +1,33 @@
+Meeting 助手 V3.3.0 更新步驟
+
+一、本版新增
+1. 可選擇「在此私人裝置記住 30 天」。
+2. 存取碼不寫入 localStorage，改用 Vercel 後端 HttpOnly 安全 Cookie。
+3. 手機／平板底部快速導覽。
+4. 從畫面左側向右滑返回上一頁。
+5. 瀏覽器返回鍵、上一頁按鈕、回頂端按鈕。
+
+二、上傳 GitHub
+1. 解壓縮完整 ZIP。
+2. 到 GitHub Repository → Add file → Upload files。
+3. 把解壓縮資料夾「裡面的全部內容」拖入上傳區。
+4. 確認 GitHub 根目錄有：index.html、api、lib、src、package.json、vercel.json。
+5. 特別確認 src/audio-compressor.js 與 src/blob-upload.js 都存在，否則 Vite 會顯示 Failed to resolve /src/audio-compressor.js。
+6. Commit message：Meeting Assistant V3.3.0 remembered login and mobile navigation
+
+三、Vercel
+1. 等待 GitHub Commit 觸發 Production Deployment。
+2. 狀態須為 Ready／Current。
+3. 不需要新增 Environment Variable；SESSION_SECRET 是選填。
+4. 部署完成後關閉舊網頁分頁，重新打開正式網址並按 Ctrl+Shift+R。
+
+四、測試
+1. 第一次輸入網站存取碼，勾選「在此私人裝置記住 30 天」。
+2. 關閉分頁再重開，確認不再要求輸入。
+3. 手機測試底部導覽與從左側向右滑返回。
+4. 到設定按「登出此裝置」，確認會重新出現驗證視窗。
+
+注意
+- 記住登入只適用同一瀏覽器、同一裝置、同一網站網域。
+- 無痕模式、清除 Cookie、更換瀏覽器或裝置仍需重新輸入。
+- localStorage／IndexedDB 的 Meeting 資料仍是本機保存，不會因此雲端同步。

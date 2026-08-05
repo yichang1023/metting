@@ -1,62 +1,54 @@
-Meeting 助手 V3.2.0｜建置與檢查報告
+Meeting 助手 V3.3.0｜建置與檢查報告
 日期：2026-08-05
 
 一、本次完成內容
-1. 首次進入安全驗證
-   - 沒有 sessionStorage 網站存取碼時，自動顯示驗證彈窗。
-   - 驗證由 /api/health 與後端 APP_ACCESS_TOKEN 執行。
-   - 彈窗說明大於 15 MB 可先使用內建壓縮器。
+1. 記住登入
+   - 安全驗證彈窗新增「在此私人裝置記住我 30 天」。
+   - 新增 /api/session-login、/api/session-status、/api/session-logout。
+   - 後端建立 HttpOnly、SameSite=Lax、Vercel HTTPS Secure Cookie。
+   - 網站存取碼不會明文寫入 localStorage；成功建立 Cookie 後會清除舊版 sessionStorage 暫存。
+   - 不勾選記住時使用瀏覽器工作階段 Cookie；勾選時最長 30 天。
+   - APP_ACCESS_TOKEN 變更後，既有 Cookie 會立即失效。
+   - SESSION_SECRET 為選填；未設定時自動使用 APP_ACCESS_TOKEN 簽章，不增加必要設定步驟。
 
-2. 上傳工作控制
-   - 新增「暫停／繼續」。
-   - 新增「取消並清除」。
-   - Vercel Blob 上傳使用 AbortSignal；繼續時重新開始目前上傳階段。
-   - 本機壓縮使用合作式暫停檢查點。
-   - Gemini 匯入／AI 生成採安全暫停點，避免重送造成重複 API 用量。
+2. 行動裝置導覽
+   - 新增底部快速導覽：首頁、上傳、分析、更多。
+   - 新增左上角上一頁按鈕。
+   - 從畫面左側向右滑，可返回 Meeting 助手內上一頁。
+   - 支援瀏覽器返回鍵與頁面歷史狀態。
+   - 長頁面新增回頂端按鈕。
+   - 觸控按鈕最小高度調整為 44px，並支援 iPhone/iPad safe-area。
+   - 觸控空白區可收起軟體鍵盤；輸入框、按鈕、音訊控制等互動元件不會觸發滑動返回。
 
-3. 敏感辨識設定收合
-   - 專有名詞詞庫、自動校正詞典、老師姓名改為 details 收合區。
-   - 預設不直接顯示，點選後才展開。
-
-4. 錄音壓縮器整合
-   - 新增 src/audio-compressor.js。
-   - 支援 OGG／Opus、WAV／PCM。
-   - 支援逐字稿最佳化、平衡音質、較高音質。
-   - 支援目標檔案大小與選用自動分段。
-   - 壓縮完全在瀏覽器本機執行。
-
-5. 壓縮後自動 AI 分析
-   - 預設勾選「壓縮完成後自動開始 AI 分析」。
-   - 單一壓縮檔會直接接續 Private Blob 上傳與 Gemini 分析，不需重新選檔。
-   - 直接模式選到大於 15 MB 的音訊時，會詢問是否先切換壓縮模式。
-
-6. 後端音訊格式
-   - Blob 票證、路徑與匯入流程支援 WAV、OGG、MP3、AAC、FLAC、AIFF。
+3. 既有功能保留
+   - Vercel Private Blob 安全上傳。
+   - Gemini 3.6 逐字稿與分析。
+   - 本機 OGG／WAV 壓縮與壓縮後自動分析。
+   - 暫停／繼續、取消並清除。
+   - 敏感辨識設定預設收合。
+   - localStorage／IndexedDB 本機資料保存，不新增雲端同步。
 
 二、自動與靜態檢查
-- Node 單元測試：8／8 通過。
-- npm run check：通過。
+- Node 單元測試：10／10 通過。
+- npm run check 對應檢查：通過。
 - index.html 內嵌 JavaScript 語法：通過。
 - api、lib、src、scripts 全部 JavaScript 語法：通過。
-- HTML ID 數量：112；重複 ID：0。
-- 首次驗證彈窗：存在。
-- 暫停按鈕：存在。
-- 取消並清除按鈕：存在。
-- 敏感設定收合區：存在。
-- 內建壓縮器模組：存在。
-- 壓縮後自動分析流程：存在。
+- 新增登入 Cookie測試：通過。
+- APP_ACCESS_TOKEN 變更使舊 Cookie 失效測試：通過。
 - 前端 Gemini API Key 輸入欄位：0。
 - 前端帶 API Key 的 Google URL：0。
-- CSP 仍保留 https://vercel.com 與 Private Blob 白名單。
+- CSP 保留 https://vercel.com 與 Private Blob 白名單。
+- src/audio-compressor.js 與 src/blob-upload.js 均包含在完整 ZIP 中。
 
 三、未在本環境完成的項目
-- npm install／npm run build 未能在本工作容器執行：容器的內部 npm registry 無法取得 @vercel/blob@2.6.1（404）。
-- 本版沒有變更既有 @vercel/blob 版本；Vercel 部署會依 package.json 在其建置環境安裝。
+- npm install／npm run build 未能在本工作容器執行：內部 npm registry 無法取得 @vercel/blob@2.6.1（404）。
+- 已執行來源檔存在性、HTML 引用、Node 語法與 10 項單元測試；Vercel 正式建置仍需由你的專案完成。
 - 無法使用你的真實 Vercel、Private Blob、APP_ACCESS_TOKEN 與 Gemini API Key 執行端到端測試。
 
 四、部署後建議測試順序
-1. 10～30 秒、15 MB 以下音檔：直接 AI 分析。
-2. 4～10 MB 音檔：Blob 上傳暫停／繼續。
-3. 大於 15 MB 音檔：選擇內建壓縮，勾選自動 AI 分析。
-4. 壓縮中測試暫停／繼續與取消並清除。
-5. 關閉瀏覽器分頁再重開，確認網站存取碼彈窗重新出現。
+1. 第一次輸入存取碼並勾選「記住 30 天」。
+2. 關閉分頁後重新開啟，確認不再要求輸入。
+3. 完全關閉瀏覽器後重開，確認記住功能仍有效。
+4. 到設定按「登出此裝置」，確認驗證彈窗重新出現。
+5. 手機測試底部導覽、左側右滑返回與瀏覽器返回鍵。
+6. 10～30 秒音檔直接分析，再測試大於 15 MB 的壓縮後自動分析。

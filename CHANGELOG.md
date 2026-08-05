@@ -1,5 +1,17 @@
 # Changelog
 
+## 3.3.0
+
+- 網站存取碼新增「在此私人裝置記住 30 天」。
+- 不將網站存取碼明文寫入 localStorage；改由 Vercel 後端簽發 `HttpOnly`、`SameSite=Lax` 安全 Cookie。
+- 新增 `/api/session-login`、`/api/session-status`、`/api/session-logout`。
+- 關閉分頁或重新開啟網站後，只要安全 Cookie 尚未到期，即可自動通過驗證。
+- 使用者主動登出、清除瀏覽器 Cookie、切換裝置／瀏覽器，或管理者變更 `APP_ACCESS_TOKEN` 後，仍需重新輸入。
+- 行動裝置新增底部快速導覽列：首頁、上傳、分析、更多。
+- 手機／平板可從畫面左側向右滑，返回 Meeting 助手內的上一頁。
+- 支援瀏覽器返回鍵、行動版上一頁按鈕與回到頁面頂端按鈕。
+- 行動版觸控目標加大，加入安全區 padding，降低誤觸與被瀏海／Home Indicator 遮住的情形。
+
 ## 3.2.0
 
 - 首次進入新增網站存取碼安全驗證彈窗，並提示大於 15 MB 可先使用內建壓縮器。
@@ -22,20 +34,7 @@
 
 - 修正 Gemini resumable upload 的 8 MiB chunk granularity 錯誤。
 - 移除錯誤的 2 MiB Vercel Function → Gemini 分段代理。
-- 新增 Vercel Private Blob client upload。
-- 新增短效 HMAC 上傳票證。
-- 新增 `/api/blob-upload-ticket`。
-- 新增 `/api/blob-upload`。
-- 新增 `/api/gemini-import-blob`。
-- 後端依 Gemini 回傳的 `x-goog-upload-chunk-granularity` 分段匯入，缺省為 8 MiB。
-- 匯入完成或失敗後嘗試刪除暫存 Blob。
-- 新增 Vite 建置與 `@vercel/blob` 依賴。
-- 健康檢查新增 `blobConfigured` 與 `uploadTicketConfigured`。
-
-## 3.0.2
-
-- 曾嘗試將音檔切成 2 MiB 後經 Vercel Function 轉送 Gemini。
-- 此方式因 Gemini 非最後分段要求 8 MiB 粒度而淘汰。
+- 新增 Vercel Private Blob client upload、短效 HMAC 上傳票證與 Gemini 匯入流程。
 
 ## 3.0.1
 

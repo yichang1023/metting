@@ -1,4 +1,4 @@
-Meeting 助手 V3.2.0｜GitHub 更新步驟
+Meeting 助手 V3.3.0｜GitHub 更新步驟
 
 1. 請先解壓縮 ZIP。
 2. 進入目前的 GitHub metting Repository。
@@ -13,7 +13,7 @@ Meeting 助手 V3.2.0｜GitHub 更新步驟
    - lib/blob-to-gemini.js
    - package.json
    - vercel.json
-6. Commit message：Meeting Assistant V3.2.0 integrated compressor
+6. Commit message：Meeting Assistant V3.3.0 integrated compressor
 7. 按 Commit changes。
 8. 到 Vercel → Deployments，等待最新 Production 顯示 Ready／Current。
 9. 開啟正式網址後按 Ctrl + Shift + R，再測試一段短錄音。
@@ -21,5 +21,5 @@ Meeting 助手 V3.2.0｜GitHub 更新步驟
 重要：
 - 不要只上傳 ZIP。
 - 不要在 GitHub 放入任何 Gemini API Key、網站存取碼或 Blob Token。
-- V3.2.0 沿用現有 Vercel Environment Variables，不需要新增其他變數。
+- V3.3.0 沿用現有 Vercel Environment Variables，不需要新增其他變數。
 - 網站首次開啟會要求 APP_ACCESS_TOKEN；錄音大於 15 MB 可直接切換內建壓縮模式。

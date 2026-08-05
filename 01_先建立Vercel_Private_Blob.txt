@@ -1,4 +1,4 @@
-Meeting 助手 V3.2.0 必要設定：Vercel Private Blob
+Meeting 助手 V3.3.0 必要設定：Vercel Private Blob
 
 為什麼需要：
 1. Vercel Function 接收的單次請求上限為 4.5 MB。

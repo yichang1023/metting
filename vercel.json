@@ -20,6 +20,15 @@
     },
     "api/gemini-file-status.js": {
       "maxDuration": 30
+    },
+    "api/session-login.js": {
+      "maxDuration": 10
+    },
+    "api/session-status.js": {
+      "maxDuration": 10
+    },
+    "api/session-logout.js": {
+      "maxDuration": 10
     }
   },
   "headers": [

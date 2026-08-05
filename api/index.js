@@ -5,6 +5,9 @@ export default function handler(req, res) {
     name: 'Meeting 助手 API',
     version: '3.2.0',
     endpoints: [
+        'POST /api/session-login',
+        'GET /api/session-status',
+        'POST /api/session-logout',
       'GET /api/health',
       'POST /api/blob-upload-ticket',
       'POST /api/blob-upload',

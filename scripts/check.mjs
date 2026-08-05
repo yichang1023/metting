@@ -16,6 +16,9 @@ const required = [
   'api/gemini-import-blob.js',
   'api/gemini-file-status.js',
   'api/gemini-generate.js',
+  'api/session-login.js',
+  'api/session-status.js',
+  'api/session-logout.js',
   'lib/http.js',
   'lib/gemini.js',
   'lib/upload-ticket.js',
@@ -46,7 +49,7 @@ for (const value of forbidden) {
 }
 
 
-const requiredV32Features = [
+const requiredV33Features = [
   'id="accessGateModal"',
   'id="uploadPauseBtn"',
   'id="uploadClearBtn"',
@@ -54,10 +57,14 @@ const requiredV32Features = [
   'id="uploadModeCompressBtn"',
   'id="compressAutoAnalyze"',
   '/src/audio-compressor.js',
-  'analyzeCompressedOutput'
+  'analyzeCompressedOutput',
+  'id="accessGateRemember"',
+  'id="mobileBottomNav"',
+  'function initMobileNavigation()',
+  'function goBackPage()'
 ];
-for (const value of requiredV32Features) {
-  if (!index.includes(value)) throw new Error(`V3.2.0 功能缺少：${value}`);
+for (const value of requiredV33Features) {
+  if (!index.includes(value)) throw new Error(`V3.3.0 功能缺少：${value}`);
 }
 
 const requiredFrontendRoutes = [
@@ -66,7 +73,10 @@ const requiredFrontendRoutes = [
   '/api/blob-upload',
   '/api/gemini-import-blob',
   '/api/gemini-file-status',
-  '/api/gemini-generate'
+  '/api/gemini-generate',
+  '/api/session-login',
+  '/api/session-status',
+  '/api/session-logout'
 ];
 for (const route of requiredFrontendRoutes) {
   if (!index.includes(route) && route !== '/api/blob-upload') {
@@ -93,12 +103,14 @@ for (const value of ['MeetingAudioCompressor', 'audio/ogg', 'audio/wav', 'waitIf
   if (!compressorModule.includes(value)) throw new Error(`內建壓縮器缺少：${value}`);
 }
 
-if (!index.includes('sessionStorage.setItem(\'meetingAccessToken\'')) {
-  throw new Error('網站存取碼未採用 sessionStorage 暫存。');
-}
 if (index.includes('localStorage.setItem(\'meetingAccessToken\'')) {
   throw new Error('網站存取碼不應永久寫入 localStorage。');
 }
+const httpModule = await readFile(path.join(root, 'lib/http.js'), 'utf8');
+for (const value of ['HttpOnly', 'SameSite=Lax', 'meeting_session', 'readAccessSession']) {
+  if (!httpModule.includes(value)) throw new Error(`安全登入 Cookie 缺少：${value}`);
+}
+if (!index.includes("fetch('/api/session-login'")) throw new Error('前端尚未接上安全登入 API。');
 
 const scriptMatch = index.match(/<script>\s*([\s\S]*?)\s*<\/script>/);
 if (!scriptMatch) throw new Error('找不到 index.html 內嵌 script');
@@ -121,7 +133,8 @@ console.log('✓ 前端沒有 Gemini API Key 輸入欄位、儲存邏輯或帶 k
 console.log('✓ 已移除錯誤的 2 MiB → Gemini 分段代理架構');
 console.log('✓ 音檔改用 Vercel Private Blob client upload');
 console.log('✓ 後端已接上 Private Blob → Gemini 粒度對齊匯入');
-console.log('✓ 網站存取碼只暫存在 sessionStorage');
+console.log('✓ 網站存取碼改用 HttpOnly 安全 Cookie，可選擇在私人裝置記住 30 天');
 console.log('✓ 首次存取碼彈窗、收合敏感設定、暫停／清除與壓縮後自動分析功能完整');
+console.log('✓ 手機底部導覽、左側右滑返回、瀏覽器返回鍵與回頂端功能完整');
 console.log('✓ Blob 上傳支援 AbortSignal 與實際進度，內建壓縮器支援 OGG／WAV');
 console.log('✓ index.html、前端模組與 Vercel Functions JavaScript 語法正確');

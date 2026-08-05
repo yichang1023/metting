@@ -115,3 +115,36 @@ test('final binary chunk is forwarded to Gemini and returns file metadata', asyn
     globalThis.fetch = originalFetch;
   }
 });
+
+test('remembered access session uses an HttpOnly cookie and can authenticate later requests', async () => {
+  const { setAccessSessionCookie, readAccessSession, assertAccess } = await import('../lib/http.js');
+  withEnv({ APP_ACCESS_TOKEN: 'a-strong-access-token-123456', SESSION_SECRET: 'a-separate-session-secret-123456', VERCEL: '1' }, () => {
+    const headers = {};
+    const req = { headers: { 'x-forwarded-proto': 'https' } };
+    const res = { setHeader(name, value) { headers[name] = value; } };
+    const session = setAccessSessionCookie(req, res, true);
+    assert.equal(session.authenticated, true);
+    assert.equal(session.remembered, true);
+    assert.match(headers['Set-Cookie'], /HttpOnly/);
+    assert.match(headers['Set-Cookie'], /Secure/);
+    assert.match(headers['Set-Cookie'], /Max-Age=/);
+
+    const cookieValue = headers['Set-Cookie'].split(';')[0];
+    const laterReq = { headers: { cookie: cookieValue } };
+    assert.equal(readAccessSession(laterReq)?.authenticated, true);
+    assert.doesNotThrow(() => assertAccess(laterReq));
+  });
+});
+
+test('changing APP_ACCESS_TOKEN invalidates an existing remembered session', async () => {
+  const { setAccessSessionCookie, readAccessSession } = await import('../lib/http.js');
+  let cookieValue = '';
+  withEnv({ APP_ACCESS_TOKEN: 'first-access-token-123456', SESSION_SECRET: 'fixed-session-secret-123456', VERCEL: '1' }, () => {
+    const headers = {};
+    setAccessSessionCookie({ headers: {} }, { setHeader(name, value) { headers[name] = value; } }, true);
+    cookieValue = headers['Set-Cookie'].split(';')[0];
+  });
+  withEnv({ APP_ACCESS_TOKEN: 'second-access-token-123456', SESSION_SECRET: 'fixed-session-secret-123456', VERCEL: '1' }, () => {
+    assert.equal(readAccessSession({ headers: { cookie: cookieValue } }), null);
+  });
+});

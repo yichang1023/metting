@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     sendJson(req, res, 200, {
       ok: true,
       service: 'meeting-assistant-api',
-      version: '3.2.0',
+      version: '3.3.0',
       model: getConfiguredModel('meeting-analysis'),
       polishModel: getConfiguredModel('polish'),
       keyCount: keys.length,
