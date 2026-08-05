@@ -5,7 +5,7 @@ export default function handler(req, res) {
   sendJson(req, res, 410, {
     error: {
       code: 'ENDPOINT_RETIRED',
-      message: '2 MiB Gemini 分段代理已停用；請使用 V3.1.0 Private Blob 上傳流程。'
+      message: '2 MiB Gemini 分段代理已停用；請使用 V3.2.0 Private Blob 上傳流程。'
     }
   });
 }

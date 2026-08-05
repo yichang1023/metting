@@ -9,6 +9,7 @@ const required = [
   'package.json',
   'vercel.json',
   'src/blob-upload.js',
+  'src/audio-compressor.js',
   'api/health.js',
   'api/blob-upload-ticket.js',
   'api/blob-upload.js',
@@ -44,6 +45,21 @@ for (const value of forbidden) {
   if (index.includes(value)) throw new Error(`index.html 仍含不安全或已淘汰字串：${value}`);
 }
 
+
+const requiredV32Features = [
+  'id="accessGateModal"',
+  'id="uploadPauseBtn"',
+  'id="uploadClearBtn"',
+  'id="recognitionSettingsDetails"',
+  'id="uploadModeCompressBtn"',
+  'id="compressAutoAnalyze"',
+  '/src/audio-compressor.js',
+  'analyzeCompressedOutput'
+];
+for (const value of requiredV32Features) {
+  if (!index.includes(value)) throw new Error(`V3.2.0 功能缺少：${value}`);
+}
+
 const requiredFrontendRoutes = [
   '/api/health',
   '/api/blob-upload-ticket',
@@ -64,6 +80,17 @@ if (!blobModule.includes("handleUploadUrl: '/api/blob-upload'")) {
 }
 if (!blobModule.includes("access: 'private'")) {
   throw new Error('音檔上傳必須使用 Vercel Private Blob。');
+}
+if (!blobModule.includes('abortSignal')) {
+  throw new Error('Vercel Blob 上傳尚未支援暫停／取消所需的 AbortSignal。');
+}
+if (!blobModule.includes('onUploadProgress')) {
+  throw new Error('Vercel Blob 上傳尚未回報實際進度。');
+}
+
+const compressorModule = await readFile(path.join(root, 'src/audio-compressor.js'), 'utf8');
+for (const value of ['MeetingAudioCompressor', 'audio/ogg', 'audio/wav', 'waitIfPaused', 'throwIfCancelled']) {
+  if (!compressorModule.includes(value)) throw new Error(`內建壓縮器缺少：${value}`);
 }
 
 if (!index.includes('sessionStorage.setItem(\'meetingAccessToken\'')) {
@@ -95,4 +122,6 @@ console.log('✓ 已移除錯誤的 2 MiB → Gemini 分段代理架構');
 console.log('✓ 音檔改用 Vercel Private Blob client upload');
 console.log('✓ 後端已接上 Private Blob → Gemini 粒度對齊匯入');
 console.log('✓ 網站存取碼只暫存在 sessionStorage');
+console.log('✓ 首次存取碼彈窗、收合敏感設定、暫停／清除與壓縮後自動分析功能完整');
+console.log('✓ Blob 上傳支援 AbortSignal 與實際進度，內建壓縮器支援 OGG／WAV');
 console.log('✓ index.html、前端模組與 Vercel Functions JavaScript 語法正確');

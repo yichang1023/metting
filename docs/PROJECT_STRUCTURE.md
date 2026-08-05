@@ -2,8 +2,9 @@
 
 ```text
 meeting-assistant/
-├── index.html                     # Meeting 助手主要介面與既有功能
+├── index.html                     # Meeting 助手主介面、首次驗證、壓縮／分析流程
 ├── src/
+│   ├── audio-compressor.js        # 瀏覽器本機 OGG／WAV 壓縮器
 │   └── blob-upload.js             # 瀏覽器直傳 Vercel Private Blob
 ├── api/
 │   ├── index.js                   # API 路由摘要
@@ -17,7 +18,7 @@ meeting-assistant/
 │   ├── http.js                    # API 回應、錯誤與存取驗證
 │   ├── gemini.js                  # Gemini Key、Files API 與生成請求
 │   ├── upload-ticket.js           # 上傳票證簽章與驗證
-│   └── blob-to-gemini.js          # 8 MiB 粒度對齊匯入與暫存刪除
+│   └── blob-to-gemini.js          # 粒度對齊匯入與暫存刪除
 ├── tests/
 │   └── config.test.js
 ├── scripts/
@@ -30,18 +31,21 @@ meeting-assistant/
 ## 音檔資料流
 
 ```text
-WAV Blob
+原始錄音
+→（選用）瀏覽器本機壓縮成 OGG／Opus 或 WAV
 → @vercel/blob/client upload（Private）
 → /api/gemini-import-blob
-→ 讀取 Gemini 回傳的 chunk granularity（缺省 8 MiB）
-→ Range 讀取 Private Blob
+→ 依 Gemini 回傳的 chunk granularity 讀取 Private Blob
 → Gemini resumable upload
 → 刪除 Private Blob
+→ 逐字稿與研究分析
 ```
 
 ## 本版仍使用瀏覽器本機保存
 
 - 逐字稿與分析：localStorage
 - 錄音：IndexedDB
+- 網站存取碼：sessionStorage
+- 尚未送出或下載的壓縮結果：目前分頁記憶體
 
 雲端帳號、跨裝置同步與研究資料庫尚未加入。

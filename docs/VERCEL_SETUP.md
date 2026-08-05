@@ -52,7 +52,11 @@ GEMINI_UPLOAD_CHUNK_TIMEOUT_MS
 Deployments → 最新部署右側 ⋯ → Redeploy
 ```
 
-## 五、健康檢查
+## 五、V3.2.0 不需新增環境變數
+
+內建壓縮器、首次彈窗與暫停／清除都是前端功能，沿用既有 `APP_ACCESS_TOKEN`、Gemini Key 與 Private Blob 設定即可。更新 GitHub 後只需等待新的 Production Deployment。
+
+## 六、健康檢查
 
 正常應顯示：
 

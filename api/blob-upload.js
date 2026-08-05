@@ -21,7 +21,8 @@ export default async function handler(req, res) {
 
         const ticketPayload = verifyUploadTicket(parsedPayload.ticket);
         const normalizedPathname = String(pathname || '');
-        if (!normalizedPathname.startsWith('meeting-audio/') || !normalizedPathname.endsWith('.wav')) {
+        const allowedExtension = /\.(wav|mp3|aac|ogg|flac|aiff)$/i.test(normalizedPathname);
+        if (!normalizedPathname.startsWith('meeting-audio/') || !allowedExtension) {
           throw new HttpError(400, 'INVALID_BLOB_PATH', '音檔儲存路徑不正確。');
         }
 

@@ -1,9 +1,9 @@
 {
   "name": "meeting-assistant",
-  "version": "3.1.1",
+  "version": "3.2.0",
   "private": true,
   "type": "module",
-  "description": "Meeting 助手：會議錄音轉逐字稿與研究分析平台，使用 Vercel Functions、Private Blob 與 Gemini API。",
+  "description": "Meeting 助手：會議錄音壓縮、逐字稿與研究分析整合平台，使用 Vercel Functions、Private Blob 與 Gemini API。",
   "engines": {
     "node": "24.x"
   },

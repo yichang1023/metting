@@ -36,8 +36,12 @@ export default async function handler(req, res) {
         `檔案超過目前允許上限 ${(maxBytes / 1048576).toFixed(0)} MB。`
       );
     }
-    if (mimeType !== 'audio/wav') {
-      throw new HttpError(415, 'UNSUPPORTED_MEDIA_TYPE', '目前只接受網頁轉換完成的 audio/wav 音檔。');
+    const allowedMimeTypes = new Set([
+      'audio/wav', 'audio/x-wav', 'audio/ogg', 'audio/mpeg', 'audio/mp3',
+      'audio/aac', 'audio/flac', 'audio/aiff'
+    ]);
+    if (!allowedMimeTypes.has(mimeType)) {
+      throw new HttpError(415, 'UNSUPPORTED_MEDIA_TYPE', '目前只接受 WAV、MP3、AAC、OGG、FLAC 或 AIFF 音檔。');
     }
 
     const ticket = createUploadTicket({ size, mimeType });

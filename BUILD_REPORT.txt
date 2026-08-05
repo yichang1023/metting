@@ -1,23 +1,62 @@
-Meeting 助手 V3.1.1 建置與安全修正報告
+Meeting 助手 V3.2.0｜建置與檢查報告
+日期：2026-08-05
 
-修正原因
-- Chrome Console 顯示 Content Security Policy 阻擋：
-  https://vercel.com/api/blob/?pathname=...
-- 既有 `connect-src` 只允許本站、Blob 儲存網域、Gemini 與 Google APIs，未允許 Vercel Blob Client Upload 的控制端點。
+一、本次完成內容
+1. 首次進入安全驗證
+   - 沒有 sessionStorage 網站存取碼時，自動顯示驗證彈窗。
+   - 驗證由 /api/health 與後端 APP_ACCESS_TOKEN 執行。
+   - 彈窗說明大於 15 MB 可先使用內建壓縮器。
 
-修正內容
-- `vercel.json` 的 Content-Security-Policy → connect-src 新增 `https://vercel.com`。
-- 保留 `https://*.blob.vercel-storage.com`，讓瀏覽器將音檔直接傳至 Private Blob。
-- 專案版本更新為 3.1.1。
+2. 上傳工作控制
+   - 新增「暫停／繼續」。
+   - 新增「取消並清除」。
+   - Vercel Blob 上傳使用 AbortSignal；繼續時重新開始目前上傳階段。
+   - 本機壓縮使用合作式暫停檢查點。
+   - Gemini 匯入／AI 生成採安全暫停點，避免重送造成重複 API 用量。
 
-檢查結果
-- vercel.json JSON 語法：通過
-- package.json JSON 語法：通過
-- npm test：8/8 通過
-- npm run build：未在此環境重跑（內部 npm registry 無 @vercel/blob 2.6.1）；原 V3.1.0 已完成建置，本次僅修改 vercel.json CSP 與版本文字
+3. 敏感辨識設定收合
+   - 專有名詞詞庫、自動校正詞典、老師姓名改為 details 收合區。
+   - 預設不直接顯示，點選後才展開。
 
-部署注意
-1. 將新版 `vercel.json` 上傳 GitHub 根目錄並覆蓋舊檔。
-2. 等待 Vercel 自動部署 Production。
-3. 開啟正式網址後按 Ctrl+F5。
-4. 用短音檔測試。
+4. 錄音壓縮器整合
+   - 新增 src/audio-compressor.js。
+   - 支援 OGG／Opus、WAV／PCM。
+   - 支援逐字稿最佳化、平衡音質、較高音質。
+   - 支援目標檔案大小與選用自動分段。
+   - 壓縮完全在瀏覽器本機執行。
+
+5. 壓縮後自動 AI 分析
+   - 預設勾選「壓縮完成後自動開始 AI 分析」。
+   - 單一壓縮檔會直接接續 Private Blob 上傳與 Gemini 分析，不需重新選檔。
+   - 直接模式選到大於 15 MB 的音訊時，會詢問是否先切換壓縮模式。
+
+6. 後端音訊格式
+   - Blob 票證、路徑與匯入流程支援 WAV、OGG、MP3、AAC、FLAC、AIFF。
+
+二、自動與靜態檢查
+- Node 單元測試：8／8 通過。
+- npm run check：通過。
+- index.html 內嵌 JavaScript 語法：通過。
+- api、lib、src、scripts 全部 JavaScript 語法：通過。
+- HTML ID 數量：112；重複 ID：0。
+- 首次驗證彈窗：存在。
+- 暫停按鈕：存在。
+- 取消並清除按鈕：存在。
+- 敏感設定收合區：存在。
+- 內建壓縮器模組：存在。
+- 壓縮後自動分析流程：存在。
+- 前端 Gemini API Key 輸入欄位：0。
+- 前端帶 API Key 的 Google URL：0。
+- CSP 仍保留 https://vercel.com 與 Private Blob 白名單。
+
+三、未在本環境完成的項目
+- npm install／npm run build 未能在本工作容器執行：容器的內部 npm registry 無法取得 @vercel/blob@2.6.1（404）。
+- 本版沒有變更既有 @vercel/blob 版本；Vercel 部署會依 package.json 在其建置環境安裝。
+- 無法使用你的真實 Vercel、Private Blob、APP_ACCESS_TOKEN 與 Gemini API Key 執行端到端測試。
+
+四、部署後建議測試順序
+1. 10～30 秒、15 MB 以下音檔：直接 AI 分析。
+2. 4～10 MB 音檔：Blob 上傳暫停／繼續。
+3. 大於 15 MB 音檔：選擇內建壓縮，勾選自動 AI 分析。
+4. 壓縮中測試暫停／繼續與取消並清除。
+5. 關閉瀏覽器分頁再重開，確認網站存取碼彈窗重新出現。

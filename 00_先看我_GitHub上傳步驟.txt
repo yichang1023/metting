@@ -1,16 +1,25 @@
-Meeting 助手 V3.1.0｜GitHub 更新步驟
+Meeting 助手 V3.2.0｜GitHub 更新步驟
 
 1. 請先解壓縮 ZIP。
-2. 進入目前的 GitHub meeting-assistant Repository。
+2. 進入目前的 GitHub metting Repository。
 3. 選 Add file → Upload files。
 4. 把本資料夾「裡面的全部檔案與資料夾」拖入 GitHub。
-5. 同名檔案請覆蓋；並確認新增 src、api/blob-upload-ticket.js、api/blob-upload.js、api/gemini-import-blob.js。
-6. 舊的 api/gemini-upload-chunk.js 與 api/gemini-upload-start.js 會被新版 410 停用檔覆蓋，請一併上傳。
-7. Commit message：Meeting Assistant V3.1.0 Private Blob upload fix
-8. 按 Commit changes。
+5. 同名檔案請覆蓋，尤其要確認：
+   - index.html
+   - src/audio-compressor.js（新增）
+   - src/blob-upload.js
+   - api/blob-upload-ticket.js
+   - api/blob-upload.js
+   - lib/blob-to-gemini.js
+   - package.json
+   - vercel.json
+6. Commit message：Meeting Assistant V3.2.0 integrated compressor
+7. 按 Commit changes。
+8. 到 Vercel → Deployments，等待最新 Production 顯示 Ready／Current。
+9. 開啟正式網址後按 Ctrl + Shift + R，再測試一段短錄音。
 
 重要：
 - 不要只上傳 ZIP。
-- 不要在 GitHub 填入任何真實 Gemini API Key。
-- 上傳 GitHub 後，還必須依照 01_先建立Vercel_Private_Blob.txt 建立 Private Blob Store。
-- Environment Variables 必須保留 GEMINI_API_KEY_1，並新增 BLOB_UPLOAD_SIGNING_SECRET。
+- 不要在 GitHub 放入任何 Gemini API Key、網站存取碼或 Blob Token。
+- V3.2.0 沿用現有 Vercel Environment Variables，不需要新增其他變數。
+- 網站首次開啟會要求 APP_ACCESS_TOKEN；錄音大於 15 MB 可直接切換內建壓縮模式。

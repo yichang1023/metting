@@ -1,5 +1,17 @@
 # Changelog
 
+## 3.2.0
+
+- 首次進入新增網站存取碼安全驗證彈窗，並提示大於 15 MB 可先使用內建壓縮器。
+- 上傳與壓縮工作新增暫停／繼續及取消並清除控制。
+- 整合單機 Meeting 錄音壓縮器，可輸出 OGG／Opus 或 WAV。
+- 壓縮完成後可自動接續 Vercel Private Blob 與 Gemini AI 分析。
+- 直接模式選到大於 15 MB 的音訊時，會詢問是否切換壓縮模式。
+- 專有名詞詞庫、自動校正詞典與老師姓名改為預設收合。
+- Blob 上傳支援 WAV、OGG、MP3、AAC、FLAC 與 AIFF MIME 類型。
+- Blob Client Upload 支援 AbortSignal 與實際上傳進度。
+- AI 生成與伺服器匯入採安全暫停點，避免中途重送造成重複 API 用量。
+
 ## 3.1.1
 
 - 修正 Content Security Policy 阻擋 Vercel Blob Client Upload。
