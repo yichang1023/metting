@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meeting 助手(單機版V1.8) - 研究生智慧分析平台</title>
+    <title>Meeting 助手 V3.2 - 研究生智慧分析平台</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -566,6 +566,195 @@
         @keyframes spin {
             100% { transform: rotate(360deg); }
         }
+
+
+        /* V3.2 上傳模式、壓縮與工作控制 */
+        .upload-mode-switch {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            padding: 6px;
+            margin-bottom: 16px;
+            border-radius: 14px;
+            background: rgba(255,255,255,.035);
+            border: var(--glass-border);
+        }
+        .upload-mode-btn {
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-secondary);
+            padding: 12px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font: inherit;
+            font-weight: 700;
+            transition: var(--transition);
+        }
+        .upload-mode-btn.active {
+            color: var(--text-primary);
+            border-color: rgba(124,58,237,.65);
+            background: linear-gradient(135deg, rgba(124,58,237,.28), rgba(6,182,212,.18));
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
+        }
+        .upload-mode-hint {
+            color: var(--text-secondary);
+            font-size: 13px;
+            line-height: 1.7;
+            margin: -2px 2px 18px;
+        }
+        .compress-options {
+            display: none;
+            background: var(--card-bg);
+            border: var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            margin: -12px 0 26px;
+        }
+        .compress-options.active { display: block; }
+        .compress-file-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 13px 15px;
+            margin-bottom: 16px;
+            border-radius: 12px;
+            background: rgba(255,255,255,.035);
+            border: var(--glass-border);
+        }
+        .compress-file-name { font-weight: 700; overflow-wrap: anywhere; }
+        .compress-file-meta { color: var(--text-tertiary); font-size: 12px; margin-top: 4px; }
+        .compress-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+        }
+        .compress-field label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 7px; }
+        .compress-field select, .compress-field input[type="number"] {
+            width: 100%;
+            background: var(--surface-color);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 9px;
+            padding: 10px 11px;
+            font: inherit;
+        }
+        .compress-check {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            padding: 11px 12px;
+            margin-top: 12px;
+            border-radius: 10px;
+            background: rgba(255,255,255,.025);
+            border: var(--glass-border);
+            color: var(--text-secondary);
+            font-size: 13px;
+            line-height: 1.55;
+        }
+        .compress-check input { margin-top: 3px; }
+        .compress-estimate {
+            display: none;
+            margin-top: 12px;
+            padding: 11px 13px;
+            border-radius: 10px;
+            color: #bae6fd;
+            background: rgba(6,182,212,.09);
+            border: 1px solid rgba(6,182,212,.2);
+            font-size: 13px;
+            line-height: 1.65;
+        }
+        .compress-actions, .job-actions, .compression-result-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: 16px;
+        }
+        .btn-warning {
+            background: rgba(245,158,11,.14);
+            color: #fbbf24;
+            border: 1px solid rgba(245,158,11,.35);
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font: inherit;
+            font-weight: 700;
+        }
+        .btn-warning:hover { background: rgba(245,158,11,.22); }
+        .job-actions {
+            margin-top: 18px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255,255,255,.08);
+            justify-content: center;
+        }
+        .job-action-note {
+            color: var(--text-tertiary);
+            font-size: 12px;
+            line-height: 1.55;
+            text-align: center;
+            margin-top: 9px;
+        }
+        .compression-result-panel {
+            display: none;
+            margin-top: 18px;
+            padding: 16px;
+            border-radius: 14px;
+            background: rgba(16,185,129,.06);
+            border: 1px solid rgba(16,185,129,.24);
+        }
+        .compression-result-panel.active { display: block; }
+        .compression-result-list { display: grid; gap: 9px; margin-top: 12px; }
+        .compression-result-item {
+            display: grid;
+            grid-template-columns: minmax(0,1fr) auto;
+            gap: 12px;
+            align-items: center;
+            padding: 11px 12px;
+            border-radius: 10px;
+            background: rgba(0,0,0,.15);
+        }
+        .compression-download {
+            color: #d1fae5;
+            text-decoration: none;
+            border: 1px solid rgba(16,185,129,.35);
+            border-radius: 8px;
+            padding: 8px 11px;
+            white-space: nowrap;
+        }
+        .sensitive-settings {
+            border: 1px solid rgba(245,158,11,.2);
+            border-radius: 12px;
+            background: rgba(245,158,11,.035);
+            overflow: hidden;
+        }
+        .sensitive-settings > summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 15px 16px;
+            font-weight: 700;
+            color: #fde68a;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+        }
+        .sensitive-settings > summary::-webkit-details-marker { display: none; }
+        .sensitive-settings > summary::after { content: '點擊顯示'; color: var(--text-tertiary); font-size: 12px; font-weight: 500; }
+        .sensitive-settings[open] > summary::after { content: '點擊收合'; }
+        .sensitive-settings-body { padding: 0 16px 16px; }
+        .access-gate-modal { max-width: 540px; }
+        .access-gate-input-row { display: flex; gap: 10px; margin-top: 14px; }
+        .access-gate-input-row input {
+            flex: 1; min-width: 0; padding: 12px 13px; background: var(--bg-color);
+            border: 1px solid var(--border-color); border-radius: 9px; color: var(--text-primary); font: inherit;
+        }
+        .access-gate-tip {
+            margin-top: 14px; padding: 12px 13px; border-radius: 10px;
+            background: rgba(6,182,212,.08); border: 1px solid rgba(6,182,212,.18);
+            color: var(--text-secondary); font-size: 13px; line-height: 1.65;
+        }
+        .access-gate-error { min-height: 20px; margin-top: 8px; color: var(--error-color); font-size: 13px; }
 
         /* Analysis Page */
         .analysis-layout {
@@ -1236,6 +1425,9 @@
             .line-time { align-self: flex-end; }
 
             .modal { width: 92vw; }
+            .upload-mode-switch, .compress-grid { grid-template-columns: 1fr; }
+            .compress-file-card, .compression-result-item { grid-template-columns: 1fr; align-items: stretch; }
+            .access-gate-input-row { flex-direction: column; }
             .cal-grid { gap: 4px; font-size: 11px; }
             .mindmap-container { height: 320px; }
 
@@ -1566,15 +1758,70 @@
                 </div>
 
                 <div class="upload-container">
+                    <div class="upload-mode-switch" role="tablist" aria-label="錄音處理模式">
+                        <button type="button" class="upload-mode-btn active" id="uploadModeDirectBtn" onclick="switchUploadMode('direct')" role="tab" aria-selected="true">🤖 直接 AI 逐字稿分析</button>
+                        <button type="button" class="upload-mode-btn" id="uploadModeCompressBtn" onclick="switchUploadMode('compress')" role="tab" aria-selected="false">🗜️ 先壓縮，再送 AI 分析</button>
+                    </div>
+                    <div class="upload-mode-hint" id="uploadModeHint">
+                        直接上傳後，系統會抽取音軌、轉為適合辨識的格式，再安全送到 Gemini 分析。
+                    </div>
+
                     <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
                         <div class="upload-icon">🎙️</div>
-                        <div class="upload-text">拖拽錄音檔到此處 或 點擊任意處選擇檔案</div>
-                        <div class="upload-subtext">支援 MP3、WAV、M4A 與影片音軌（最大 100MB）</div>
+                        <div class="upload-text" id="uploadZoneTitle">拖拽錄音檔到此處 或 點擊任意處選擇檔案</div>
+                        <div class="upload-subtext" id="uploadZoneSubtext">支援 MP3、WAV、M4A 與影片音軌（最大 100MB）</div>
                         <input type="file" id="fileInput" class="hidden" accept=".mp3,.wav,.m4a,.ogg,.webm,.flac,.aac,.mp4,.mov,.mkv,.m4v,audio/*,video/*">
                     </div>
 
+                    <div class="compress-options" id="compressOptionsPanel">
+                        <div class="compress-file-card">
+                            <div>
+                                <div class="compress-file-name" id="compressFileName">尚未選擇檔案</div>
+                                <div class="compress-file-meta" id="compressFileMeta">選擇錄音後會估算壓縮結果</div>
+                            </div>
+                            <button type="button" class="btn-outline" onclick="chooseAnotherCompressionFile()">更換檔案</button>
+                        </div>
+
+                        <div class="compress-grid">
+                            <div class="compress-field">
+                                <label for="compressOutputFormat">輸出格式</label>
+                                <select id="compressOutputFormat" onchange="updateCompressionEstimate()">
+                                    <option value="ogg" selected>OGG／Opus（推薦・容量小）</option>
+                                    <option value="wav">WAV／PCM（相容性高）</option>
+                                </select>
+                            </div>
+                            <div class="compress-field">
+                                <label for="compressMode">壓縮模式</label>
+                                <select id="compressMode" onchange="updateCompressionEstimate()">
+                                    <option value="speech" selected>逐字稿最佳化</option>
+                                    <option value="balanced">平衡音質</option>
+                                    <option value="quality">較高音質</option>
+                                </select>
+                            </div>
+                            <div class="compress-field">
+                                <label for="compressLimitMb">單檔目標上限</label>
+                                <input id="compressLimitMb" type="number" min="1" max="100" step="0.1" value="14.5" oninput="updateCompressionEstimate()">
+                            </div>
+                        </div>
+
+                        <label class="compress-check">
+                            <input type="checkbox" id="compressAutoAnalyze" checked onchange="syncCompressionOptions()">
+                            <span><b>壓縮完成後自動開始 AI 分析</b><br>不需要重新選檔；壓縮檔會直接接續安全上傳與逐字稿分析。</span>
+                        </label>
+                        <label class="compress-check">
+                            <input type="checkbox" id="compressAutoSplit" onchange="updateCompressionEstimate()">
+                            <span><b>錄音太長時自動分段</b><br>只有「只壓縮不分析」時可使用；自動 AI 分析需維持單一音檔。</span>
+                        </label>
+                        <div class="compress-estimate" id="compressEstimate"></div>
+
+                        <div class="compress-actions">
+                            <button type="button" class="btn-primary" id="startCompressionBtn" onclick="startIntegratedCompression()">🗜️ 開始壓縮</button>
+                            <button type="button" class="btn-outline" onclick="clearCompressionSelection()">清除選擇</button>
+                        </div>
+                    </div>
+
                     <div class="progress-container" id="uploadProgressContainer">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; gap:12px;">
                             <span id="upload-status-title" style="font-size: 14px; font-weight: 600; display: none;">分析中...</span>
                             <span id="progressText" style="font-size: 14px; font-weight: 500;">分析中...</span>
                             <span id="progressPercent" style="font-size: 14px; color: var(--accent-color);">0%</span>
@@ -1589,11 +1836,11 @@
                         <div class="progress-steps" id="progressSteps">
                             <div class="progress-step active" id="step-read">
                                 <span class="step-icon">⏳</span>
-                                <span>讀取檔案</span>
+                                <span id="stepLabelRead">讀取檔案</span>
                             </div>
                             <div class="progress-step" id="step-extract">
                                 <span class="step-icon">⏳</span>
-                                <span>抽取音軌</span>
+                                <span id="stepLabelExtract">抽取音軌</span>
                             </div>
                             <div class="progress-step" id="step-send">
                                 <span class="step-icon">⏳</span>
@@ -1608,6 +1855,23 @@
                                 <span>整理結果</span>
                             </div>
                         </div>
+                        <div class="job-actions">
+                            <button type="button" class="btn-warning" id="uploadPauseBtn" onclick="toggleUploadPause()">⏸️ 暫停</button>
+                            <button type="button" class="btn-danger" id="uploadClearBtn" onclick="clearActiveUpload()">🗑️ 取消並清除</button>
+                        </div>
+                        <div class="job-action-note" id="jobActionNote">
+                            暫停後可繼續；若正在網路上傳，繼續時會從該上傳階段重新開始。取消並清除會停止目前工作，但不會刪除既有 Meeting 紀錄。
+                        </div>
+                    </div>
+
+                    <div class="compression-result-panel" id="compressionResultPanel">
+                        <div style="font-weight:700; color:#a7f3d0;">✅ 壓縮完成</div>
+                        <div id="compressionResultSummary" style="font-size:13px; color:var(--text-secondary); margin-top:6px; line-height:1.6;"></div>
+                        <div class="compression-result-list" id="compressionResultList"></div>
+                        <div class="compression-result-actions">
+                            <button type="button" class="btn-primary" id="analyzeCompressedBtn" onclick="analyzeCompressedOutput()">🤖 使用壓縮檔開始 AI 分析</button>
+                            <button type="button" class="btn-outline" onclick="clearCompressionResults()">清空壓縮結果</button>
+                        </div>
                     </div>
 
                     <div style="margin-top: 40px; background: rgba(255,255,255,0.02); padding: 20px; border-radius: 12px; border: var(--glass-border);">
@@ -1617,9 +1881,9 @@
                             <li>若有多人參與，建議會議開始前先進行簡單的聲音測試。</li>
                             <li>會議中若有白板討論，建議口述關鍵字，方便 AI 捕捉脈絡。</li>
                             <li>🔐 Gemini API Key 已由 Vercel 後端安全管理，使用者不需要在網頁輸入 Key</li>
-                            <li>🎬 OBS 錄的 mp4 可直接上傳，系統會自動抽出音軌並丟棄影像（影像的 token 成本是音訊的十倍以上）</li>
-                            <li>✏️ 逐字稿有錯字？<b>雙擊該句即可直接修改</b>，改完系統會問你要不要記起來，下次自動修正</li>
-                            <li>🎚️ OBS 建議設定：音訊位元率 96kbps、單聲道即可。Gemini 內部本來就會降到 16kHz 單聲道，錄再高也不會更準</li>
+                            <li>🗜️ 檔案大於 15MB 時，可切換「先壓縮，再送 AI 分析」，壓縮完全在瀏覽器內完成。</li>
+                            <li>🎬 OBS 錄的 mp4 可直接上傳，系統會自動抽出音軌並丟棄影像。</li>
+                            <li>✏️ 逐字稿有錯字？<b>雙擊該句即可直接修改</b>，改完系統會問你要不要記起來，下次自動修正。</li>
                         </ul>
                     </div>
                 </div>
@@ -1773,10 +2037,10 @@
                   <h3>🔐 Vercel 後端連線</h3>
                   <p style="color:var(--text-secondary); margin-bottom:14px; line-height:1.7;">
                     Gemini API Key 由 Vercel 後端的 Environment Variables 安全讀取，<b>使用者不需要、也不應在本頁輸入 Gemini API Key</b>。
-                    下方只用於選填的「網站存取碼」；只有當你在 Vercel 設定 <code style="color:var(--accent-color);">APP_ACCESS_TOKEN</code> 時才需要輸入。
+                    下方是「網站存取碼」；當你在 Vercel 設定 <code style="color:var(--accent-color);">APP_ACCESS_TOKEN</code> 時才需要輸入。
                   </p>
                   <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
-                    <input type="password" id="access-token-input" placeholder="選填：網站存取碼（不是 Gemini API Key）" autocomplete="current-password" style="flex:1; min-width:260px; padding:12px 16px; background:var(--surface-color); border:1px solid var(--border-color); border-radius:8px; color:var(--text-primary); font-size:14px; font-family:inherit; outline:none;">
+                    <input type="password" id="access-token-input" placeholder="網站存取碼（不是 Gemini API Key）" autocomplete="current-password" style="flex:1; min-width:260px; padding:12px 16px; background:var(--surface-color); border:1px solid var(--border-color); border-radius:8px; color:var(--text-primary); font-size:14px; font-family:inherit; outline:none;">
                     <button onclick="saveAccessToken()" class="btn-primary" style="padding:12px 20px; white-space:nowrap;">💾 暫存存取碼</button>
                     <button onclick="clearAccessToken()" class="btn-outline" style="padding:11px 18px; white-space:nowrap;">清除</button>
                     <button onclick="checkBackendStatus(true)" class="btn-outline" style="padding:11px 18px; white-space:nowrap;">🔌 測試連線</button>
@@ -1790,33 +2054,42 @@
                 <div class="settings-section">
                   <h3>🎙️ 語音辨識強化</h3>
                   <p style="color:var(--text-secondary); margin-bottom:16px; line-height:1.7;">
-                    中文姓名和專有名詞最容易被聽成同音字。填入下面兩個欄位可以大幅提升辨識準確度。
+                    中文姓名與專有名詞屬於較敏感的個人化資料，因此預設收合；只有主動點選後才會顯示內容。
                   </p>
 
-                  <div class="set-label" style="margin-bottom:6px;">📖 專有名詞詞庫</div>
-                  <div class="set-desc" style="margin-bottom:8px;">
-                    一行一個。填入實驗室成員姓名、老師姓名、常用術語。這些詞會直接告訴 AI「正確的字長這樣」，讓它在轉錄時優先選用。<b>這是最有效的一層。</b>
-                  </div>
-                  <textarea id="glossaryInput" class="text-input" rows="7" placeholder="吳穎沺&#10;詩縈&#10;可蓉&#10;宜璇&#10;Knowledge Forum&#10;知識建構&#10;行動研究" style="width:100%; resize:vertical; line-height:1.7;"></textarea>
+                  <details class="sensitive-settings" id="recognitionSettingsDetails">
+                    <summary>🔐 顯示專有名詞、校正詞典與老師姓名</summary>
+                    <div class="sensitive-settings-body">
+                      <div class="set-desc" style="margin-bottom:14px;">
+                        這些資料只儲存在目前瀏覽器的本機資料中，不會隨 Gemini API Key 傳送；開始分析時，只會把必要的辨識提示交給 AI。
+                      </div>
 
-                  <div class="set-label" style="margin:18px 0 6px;">🔤 自動校正詞典</div>
-                  <div class="set-desc" style="margin-bottom:8px;">
-                    格式：<code style="color:var(--accent-color);">錯誤字=正確字</code>，一行一組。分析完成後會自動把逐字稿裡的錯字全部換掉，等於是最後一道保險。
-                  </div>
-                  <textarea id="correctionsInput" class="text-input" rows="6" placeholder="思瑩=詩縈&#10;思穎=詩縈&#10;可龍=可蓉&#10;可容=可蓉" style="width:100%; resize:vertical; line-height:1.7; font-family:monospace;"></textarea>
+                      <div class="set-label" style="margin-bottom:6px;">📖 專有名詞詞庫</div>
+                      <div class="set-desc" style="margin-bottom:8px;">
+                        一行一個。填入實驗室成員姓名、老師姓名、常用術語。這些詞會直接告訴 AI「正確的字長這樣」，讓它在轉錄時優先選用。
+                      </div>
+                      <textarea id="glossaryInput" class="text-input" rows="7" placeholder="吳穎沺&#10;詩縈&#10;可蓉&#10;宜璇&#10;Knowledge Forum&#10;知識建構&#10;行動研究" style="width:100%; resize:vertical; line-height:1.7;"></textarea>
 
-                  <div class="set-label" style="margin:18px 0 6px;">🧑‍🏫 老師姓名</div>
-                  <div class="set-desc" style="margin-bottom:8px;">
-                    一行一個。逐字稿的說話者只會顯示「老師」或「學生」兩種；萬一 AI 仍然吐出姓名，系統會用這份清單判斷那個人是不是老師。
-                  </div>
-                  <textarea id="teacherNamesInput" class="text-input" rows="3" placeholder="吳穎沺&#10;吳老師" style="width:100%; resize:vertical; line-height:1.7;"></textarea>
+                      <div class="set-label" style="margin:18px 0 6px;">🔤 自動校正詞典</div>
+                      <div class="set-desc" style="margin-bottom:8px;">
+                        格式：<code style="color:var(--accent-color);">錯誤字=正確字</code>，一行一組。分析完成後會自動把逐字稿裡的錯字全部換掉。
+                      </div>
+                      <textarea id="correctionsInput" class="text-input" rows="6" placeholder="思瑩=詩縈&#10;思穎=詩縈&#10;可龍=可蓉&#10;可容=可蓉" style="width:100%; resize:vertical; line-height:1.7; font-family:monospace;"></textarea>
 
-                  <div style="display:flex; gap:12px; margin-top:16px; flex-wrap:wrap;">
-                    <button onclick="saveRecognitionSettings()" class="btn-primary" style="padding:10px 20px;">💾 儲存設定</button>
-                    <button onclick="applyCorrectionsToAll()" class="btn-outline" style="padding:10px 20px;">🔁 套用校正到既有紀錄</button>
-                    <button onclick="convertAllSpeakers()" class="btn-outline" style="padding:10px 20px;">👥 既有紀錄改為老師／學生</button>
-                  </div>
-                  <div id="recognition-status" style="margin-top:10px; font-size:13px;"></div>
+                      <div class="set-label" style="margin:18px 0 6px;">🧑‍🏫 老師姓名</div>
+                      <div class="set-desc" style="margin-bottom:8px;">
+                        一行一個。逐字稿的說話者只會顯示「老師」或「學生」；若 AI 仍吐出姓名，系統會用這份清單判斷角色。
+                      </div>
+                      <textarea id="teacherNamesInput" class="text-input" rows="3" placeholder="吳穎沺&#10;吳老師" style="width:100%; resize:vertical; line-height:1.7;"></textarea>
+
+                      <div style="display:flex; gap:12px; margin-top:16px; flex-wrap:wrap;">
+                        <button onclick="saveRecognitionSettings()" class="btn-primary" style="padding:10px 20px;">💾 儲存設定</button>
+                        <button onclick="applyCorrectionsToAll()" class="btn-outline" style="padding:10px 20px;">🔁 套用校正到既有紀錄</button>
+                        <button onclick="convertAllSpeakers()" class="btn-outline" style="padding:10px 20px;">👥 既有紀錄改為老師／學生</button>
+                      </div>
+                      <div id="recognition-status" style="margin-top:10px; font-size:13px;"></div>
+                    </div>
+                  </details>
                 </div>
 
                 <div class="settings-section">
@@ -1862,7 +2135,7 @@
                     <h3 class="settings-title">關於</h3>
                     <div class="settings-row">
                         <div class="set-label">版本</div>
-                        <div class="set-desc">Meeting 助手 v3.1.0</div>
+                        <div class="set-desc">Meeting 助手 v3.2.0</div>
                     </div>
                     <div class="settings-row" style="display: block;">
                         <div class="set-label" style="margin-bottom: 8px;">快捷鍵參考</div>
@@ -1880,6 +2153,29 @@
     </div>
 
     <!-- Modals & Toasts -->
+    <!-- 首次進入：網站存取碼與壓縮提示 -->
+    <div class="modal-overlay" id="accessGateModal" aria-hidden="true">
+        <div class="modal access-gate-modal" role="dialog" aria-modal="true" aria-labelledby="accessGateTitle">
+            <h3 class="modal-title" id="accessGateTitle">🔐 Meeting 助手安全驗證</h3>
+            <div class="modal-body" style="margin-bottom:0;">
+                為了多一層安全性保護，請先輸入網站存取碼，驗證成功後才能使用錄音上傳與 AI 分析功能。
+            </div>
+            <div class="access-gate-input-row">
+                <input type="password" id="accessGateInput" placeholder="輸入網站存取碼" autocomplete="current-password" onkeydown="if(event.key==='Enter') submitAccessGate();">
+                <button type="button" class="btn-outline" id="accessGateToggle" onclick="toggleAccessGateVisibility()">顯示</button>
+            </div>
+            <div class="access-gate-error" id="accessGateError"></div>
+            <div class="access-gate-tip">
+                <b>錄音檔較大怎麼辦？</b><br>
+                若檔案大於 15MB，驗證後可到「上傳錄音」切換 <b>🗜️ 先壓縮，再送 AI 分析</b>。壓縮會在你的瀏覽器內完成，完成後可自動接續 AI 分析，不必重新選檔。
+            </div>
+            <div class="modal-actions" style="margin-top:18px;">
+                <button type="button" class="btn-secondary" onclick="openCompressionAfterAccess()">驗證後前往壓縮</button>
+                <button type="button" class="btn-primary" id="accessGateSubmitBtn" onclick="submitAccessGate()">驗證並開始使用</button>
+            </div>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="confirmModal">
         <div class="modal">
             <h3 class="modal-title" id="modalTitle">確認操作</h3>
@@ -1940,6 +2236,7 @@
 
     <div class="toast-container" id="toastContainer"></div>
 
+    <script type="module" src="/src/audio-compressor.js"></script>
     <script type="module" src="/src/blob-upload.js"></script>
 
     <script>
@@ -2218,7 +2515,9 @@
             }
             
             loadAccessTokenInput();
-            if (typeof checkBackendStatus === 'function') checkBackendStatus(false);
+            syncCompressionOptions();
+            openAccessGateOnFirstUse();
+            if (getAccessToken() && typeof checkBackendStatus === 'function') checkBackendStatus(false);
         }
 
         // ==================== V3.0 Vercel 後端連線 ====================
@@ -2268,6 +2567,7 @@
           if (input) input.value = '';
           showToast('success', '網站存取碼已清除');
           checkBackendStatus(false);
+          showAccessGate();
         }
 
         async function checkBackendStatus(showToastResult = false) {
@@ -2303,6 +2603,518 @@
           const data = await res.json();
           if (!data.keyCount) throw new Error('Vercel 尚未設定 GEMINI_API_KEY_1，請先到 Vercel Environment Variables 設定。');
           return data;
+        }
+
+
+        // ==================== V3.2 首次驗證、上傳控制與內建壓縮 ====================
+        let currentUploadMode = 'direct';
+        let selectedCompressionFile = null;
+        let selectedCompressionDuration = 0;
+        let compressionOutputs = [];
+        let compressionObjectUrls = [];
+        let activeUploadJob = null;
+        let accessGateGoToCompression = false;
+
+        class UploadCancelledError extends Error {
+          constructor(message = '使用者已取消目前工作。') {
+            super(message);
+            this.name = 'UploadCancelledError';
+          }
+        }
+
+        function createUploadJob(kind, file) {
+          if (activeUploadJob && !activeUploadJob.done && !activeUploadJob.cancelled) {
+            throw new Error('目前已有錄音工作正在進行，請先完成或取消。');
+          }
+          activeUploadJob = {
+            kind,
+            file,
+            paused: false,
+            cancelled: false,
+            done: false,
+            stage: '準備中',
+            abortController: null,
+            abortable: false,
+            resumeWaiters: []
+          };
+          updateUploadControlButtons();
+          return activeUploadJob;
+        }
+
+        function getActiveUploadJob() {
+          if (!activeUploadJob) throw new UploadCancelledError('目前沒有可繼續的工作。');
+          return activeUploadJob;
+        }
+
+        function throwIfUploadCancelled() {
+          const job = getActiveUploadJob();
+          if (job.cancelled) throw new UploadCancelledError();
+        }
+
+        async function waitIfUploadPaused() {
+          const job = getActiveUploadJob();
+          throwIfUploadCancelled();
+          while (job.paused && !job.cancelled) {
+            await new Promise(resolve => job.resumeWaiters.push(resolve));
+          }
+          throwIfUploadCancelled();
+        }
+
+        function releaseUploadPauseWaiters() {
+          if (!activeUploadJob) return;
+          const waiters = activeUploadJob.resumeWaiters.splice(0);
+          waiters.forEach(resolve => resolve());
+        }
+
+        function updateUploadControlButtons() {
+          const pauseBtn = document.getElementById('uploadPauseBtn');
+          const clearBtn = document.getElementById('uploadClearBtn');
+          const note = document.getElementById('jobActionNote');
+          const job = activeUploadJob;
+          if (pauseBtn) {
+            pauseBtn.disabled = !job || job.done || job.cancelled;
+            pauseBtn.textContent = job?.paused ? '▶️ 繼續' : '⏸️ 暫停';
+          }
+          if (clearBtn) clearBtn.disabled = !job || job.done || job.cancelled;
+          if (note && job?.paused) {
+            note.textContent = job.abortable
+              ? '已暫停。按「繼續」後會從目前的網路階段重新開始。'
+              : '已提出暫停要求；目前的本機解碼或伺服器匯入完成後會停住。';
+          } else if (note) {
+            note.textContent = '暫停後可繼續；若正在網路上傳，繼續時會從該上傳階段重新開始。取消並清除會停止目前工作，但不會刪除既有 Meeting 紀錄。';
+          }
+        }
+
+        function setUploadJobStage(stage, { abortable = false, controller = null } = {}) {
+          if (!activeUploadJob) return;
+          activeUploadJob.stage = stage || activeUploadJob.stage;
+          activeUploadJob.abortable = Boolean(abortable);
+          activeUploadJob.abortController = controller || null;
+          updateUploadControlButtons();
+        }
+
+        function toggleUploadPause() {
+          const job = activeUploadJob;
+          if (!job || job.done || job.cancelled) return;
+          if (!job.paused) {
+            job.paused = true;
+            if (job.abortable && job.abortController) job.abortController.abort('paused');
+            showToast('info', job.abortable ? '已暫停；繼續時會重啟目前網路階段' : '已提出暫停要求');
+          } else {
+            job.paused = false;
+            releaseUploadPauseWaiters();
+            showToast('info', '已繼續處理');
+          }
+          updateUploadControlButtons();
+        }
+
+        function clearActiveUpload(force = false) {
+          const job = activeUploadJob;
+          if (!job || job.done || job.cancelled) {
+            resetUploadZone();
+            return;
+          }
+          if (!force && !window.confirm('確定要取消並清除目前的錄音處理嗎？\n\n已完成的 Meeting 紀錄不會被刪除。')) return;
+          job.cancelled = true;
+          job.paused = false;
+          if (job.abortController) job.abortController.abort('cancelled');
+          releaseUploadPauseWaiters();
+          showToast('info', '已取消目前工作');
+          setTimeout(() => resetUploadZone(), 0);
+        }
+
+        async function runPausableFetch(path, options = {}, stage = '網路處理') {
+          while (true) {
+            await waitIfUploadPaused();
+            throwIfUploadCancelled();
+            const controller = new AbortController();
+            setUploadJobStage(stage, { abortable: true, controller });
+            try {
+              const response = await backendFetch(path, { ...options, signal: controller.signal });
+              setUploadJobStage(stage, { abortable: false });
+              return response;
+            } catch (error) {
+              setUploadJobStage(stage, { abortable: false });
+              if (activeUploadJob?.cancelled) throw new UploadCancelledError();
+              if (activeUploadJob?.paused && (error?.name === 'AbortError' || controller.signal.aborted)) {
+                await waitIfUploadPaused();
+                continue;
+              }
+              throw error;
+            }
+          }
+        }
+
+        async function runPausableBlobUpload(args) {
+          while (true) {
+            await waitIfUploadPaused();
+            throwIfUploadCancelled();
+            const controller = new AbortController();
+            setUploadJobStage('安全上傳至 Vercel Blob', { abortable: true, controller });
+            try {
+              const result = await window.uploadMeetingAudioToPrivateBlob({ ...args, abortSignal: controller.signal });
+              setUploadJobStage('安全上傳至 Vercel Blob', { abortable: false });
+              return result;
+            } catch (error) {
+              setUploadJobStage('安全上傳至 Vercel Blob', { abortable: false });
+              if (activeUploadJob?.cancelled) throw new UploadCancelledError();
+              if (activeUploadJob?.paused && (error?.name === 'AbortError' || controller.signal.aborted)) {
+                await waitIfUploadPaused();
+                continue;
+              }
+              throw error;
+            }
+          }
+        }
+
+        function setUploadProgressUi(percent, title, detail, stepIndex = null) {
+          const progressFill = document.getElementById('progressBarFill');
+          const progressText = document.getElementById('progressPercent');
+          const titleEl = document.getElementById('upload-status-title');
+          const detailEl = document.getElementById('stageDetail');
+          if (progressFill && Number.isFinite(percent)) progressFill.style.width = Math.max(0, Math.min(100, percent)) + '%';
+          if (progressText && Number.isFinite(percent)) progressText.textContent = Math.floor(Math.max(0, Math.min(100, percent))) + '%';
+          if (titleEl && title) { titleEl.style.display = ''; titleEl.textContent = title; }
+          if (detailEl && detail !== undefined) detailEl.textContent = detail || '';
+          if (stepIndex !== null) {
+            const ids = ['step-read', 'step-extract', 'step-send', 'step-analyze', 'step-finalize'];
+            ids.forEach((id, i) => {
+              const el = document.getElementById(id);
+              const icon = el?.querySelector('.step-icon');
+              if (!icon) return;
+              icon.textContent = i < stepIndex ? '✅' : i === stepIndex ? '🔄' : '⏳';
+              icon.className = i === stepIndex ? 'step-icon spin' : 'step-icon';
+            });
+          }
+        }
+
+        function formatUiBytes(bytes) {
+          const value = Number(bytes) || 0;
+          if (value >= 1073741824) return (value / 1073741824).toFixed(2) + ' GB';
+          if (value >= 1048576) return (value / 1048576).toFixed(2) + ' MB';
+          if (value >= 1024) return (value / 1024).toFixed(1) + ' KB';
+          return value + ' B';
+        }
+
+        function formatUiDuration(seconds) {
+          const sec = Math.max(0, Math.round(Number(seconds) || 0));
+          const h = Math.floor(sec / 3600);
+          const m = Math.floor((sec % 3600) / 60);
+          const s = sec % 60;
+          return h ? `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}` : `${m}:${String(s).padStart(2,'0')}`;
+        }
+
+        function switchUploadMode(mode) {
+          if (activeUploadJob && !activeUploadJob.done && !activeUploadJob.cancelled) {
+            showToast('info', '目前工作進行中，請先完成或取消後再切換模式');
+            return;
+          }
+          currentUploadMode = mode === 'compress' ? 'compress' : 'direct';
+          const directBtn = document.getElementById('uploadModeDirectBtn');
+          const compressBtn = document.getElementById('uploadModeCompressBtn');
+          directBtn?.classList.toggle('active', currentUploadMode === 'direct');
+          compressBtn?.classList.toggle('active', currentUploadMode === 'compress');
+          directBtn?.setAttribute('aria-selected', String(currentUploadMode === 'direct'));
+          compressBtn?.setAttribute('aria-selected', String(currentUploadMode === 'compress'));
+          const hint = document.getElementById('uploadModeHint');
+          const title = document.getElementById('uploadZoneTitle');
+          const sub = document.getElementById('uploadZoneSubtext');
+          if (currentUploadMode === 'compress') {
+            if (hint) hint.innerHTML = '檔案大於 15MB 時建議使用。錄音會先在本機瀏覽器壓縮，完成後可自動接續 AI 分析。';
+            if (title) title.textContent = '拖拽錄音檔到此處，先在本機壓縮';
+            if (sub) sub.textContent = '壓縮過程不會上傳；完成後才會依你的選擇送交 AI';
+          } else {
+            if (hint) hint.textContent = '直接上傳後，系統會抽取音軌、轉為適合辨識的格式，再安全送到 Gemini 分析。';
+            if (title) title.textContent = '拖拽錄音檔到此處 或 點擊任意處選擇檔案';
+            if (sub) sub.textContent = '支援 MP3、WAV、M4A 與影片音軌（最大 100MB）';
+          }
+          clearCompressionSelection(false);
+          resetUploadZone();
+        }
+
+        async function routeSelectedUploadFile(file) {
+          if (!file) return;
+          if (currentUploadMode === 'compress') {
+            await prepareCompressionFile(file);
+            return;
+          }
+
+          const isLargeAudio = !isVideoFile(file) && file.size > 15 * 1024 * 1024;
+          if (isLargeAudio) {
+            const useCompressor = window.confirm(
+              `這個錄音檔約 ${(file.size / 1048576).toFixed(1)} MB，超過建議的 15 MB。\n\n` +
+              '是否先使用內建錄音壓縮器，再自動送交 AI 分析？\n\n' +
+              '按「確定」：先壓縮；按「取消」：仍直接進行 AI 分析。'
+            );
+            if (useCompressor) {
+              switchUploadMode('compress');
+              await prepareCompressionFile(file);
+              return;
+            }
+          }
+          await handleFileUpload(file);
+        }
+
+        async function prepareCompressionFile(file) {
+          if (!window.MeetingAudioCompressor) {
+            showToast('error', '錄音壓縮模組尚未載入，請重新整理頁面');
+            return;
+          }
+          clearCompressionResults();
+          selectedCompressionFile = file;
+          selectedCompressionDuration = 0;
+          document.getElementById('uploadZone').style.display = 'none';
+          document.getElementById('compressOptionsPanel')?.classList.add('active');
+          document.getElementById('compressFileName').textContent = file.name;
+          document.getElementById('compressFileMeta').textContent = `${formatUiBytes(file.size)}・正在讀取錄音長度…`;
+          try {
+            selectedCompressionDuration = await window.MeetingAudioCompressor.loadDuration(file);
+            document.getElementById('compressFileMeta').textContent = `${formatUiBytes(file.size)}・${formatUiDuration(selectedCompressionDuration)}`;
+            syncCompressionOptions();
+            updateCompressionEstimate();
+          } catch (error) {
+            showToast('error', error.message || String(error));
+            clearCompressionSelection();
+          }
+        }
+
+        function chooseAnotherCompressionFile() {
+          document.getElementById('fileInput')?.click();
+        }
+
+        function syncCompressionOptions() {
+          const autoAnalyze = document.getElementById('compressAutoAnalyze')?.checked;
+          const autoSplit = document.getElementById('compressAutoSplit');
+          if (autoSplit) {
+            if (autoAnalyze) autoSplit.checked = false;
+            autoSplit.disabled = Boolean(autoAnalyze);
+          }
+          updateCompressionEstimate();
+        }
+
+        function updateCompressionEstimate() {
+          const el = document.getElementById('compressEstimate');
+          if (!el || !selectedCompressionFile || !selectedCompressionDuration || !window.MeetingAudioCompressor) {
+            if (el) el.style.display = 'none';
+            return;
+          }
+          const outputFormat = document.getElementById('compressOutputFormat')?.value || 'ogg';
+          const mode = document.getElementById('compressMode')?.value || 'speech';
+          const limitMb = Number(document.getElementById('compressLimitMb')?.value) || 14.5;
+          const autoSplit = Boolean(document.getElementById('compressAutoSplit')?.checked);
+          const plan = window.MeetingAudioCompressor.getPlan(selectedCompressionDuration, { outputFormat, mode, limitMb, autoSplit });
+          let text;
+          if (outputFormat === 'wav') {
+            const each = (44 + plan.partDuration * plan.sampleRate * 2) / 1048576;
+            text = `預計 ${plan.parts} 個 WAV；單聲道 ${plan.sampleRate / 1000} kHz／16-bit；每個約 ${each.toFixed(1)} MB。`;
+          } else {
+            const each = plan.partDuration * plan.kbps * 1000 / 8 / 1048576 / .96;
+            text = `預計 ${plan.parts} 個 OGG／Opus；約 ${plan.kbps} kbps；每個約 ${each.toFixed(1)} MB。`;
+          }
+          if (document.getElementById('compressAutoAnalyze')?.checked) text += ' 壓縮完成後會自動接續 AI 分析。';
+          el.textContent = text;
+          el.style.display = 'block';
+        }
+
+        async function startIntegratedCompression() {
+          if (!selectedCompressionFile) {
+            showToast('info', '請先選擇錄音檔');
+            return;
+          }
+          const autoAnalyze = Boolean(document.getElementById('compressAutoAnalyze')?.checked);
+          const outputFormat = document.getElementById('compressOutputFormat')?.value || 'ogg';
+          const mode = document.getElementById('compressMode')?.value || 'speech';
+          const limitMb = Number(document.getElementById('compressLimitMb')?.value) || 14.5;
+          const autoSplit = Boolean(document.getElementById('compressAutoSplit')?.checked) && !autoAnalyze;
+
+          try {
+            createUploadJob('compression', selectedCompressionFile);
+            document.getElementById('compressOptionsPanel')?.classList.remove('active');
+            document.getElementById('uploadProgressContainer').style.display = 'flex';
+            document.getElementById('stepLabelExtract').textContent = '壓縮錄音';
+            setUploadProgressUi(2, '[1/5] 讀取錄音', `${selectedCompressionFile.name}（${formatUiBytes(selectedCompressionFile.size)}）`, 0);
+
+            const result = await window.MeetingAudioCompressor.compress(
+              selectedCompressionFile,
+              { outputFormat, mode, limitMb, autoSplit, durationSec: selectedCompressionDuration, displayName: selectedCompressionFile.name },
+              {
+                throwIfCancelled: throwIfUploadCancelled,
+                waitIfPaused: waitIfUploadPaused,
+                onProgress(percent, title, detail) {
+                  const mapped = autoAnalyze ? 3 + percent * 0.34 : percent;
+                  setUploadJobStage(title, { abortable: false });
+                  setUploadProgressUi(mapped, `[2/5] ${title}`, detail, 1);
+                }
+              }
+            );
+
+            compressionOutputs = result.outputs;
+            renderCompressionResults(result);
+            if (autoAnalyze) {
+              if (compressionOutputs.length !== 1) throw new Error('自動 AI 分析只能接續單一壓縮檔，請取消自動分段後重試。');
+              await analyzeCompressedOutput(true);
+            } else {
+              activeUploadJob.done = true;
+              updateUploadControlButtons();
+              document.getElementById('uploadProgressContainer').style.display = 'none';
+              document.getElementById('compressionResultPanel')?.classList.add('active');
+              showToast('success', '壓縮完成，可下載或選擇送交 AI 分析');
+            }
+          } catch (error) {
+            if (error instanceof UploadCancelledError || activeUploadJob?.cancelled) return;
+            console.error('Compression error:', error);
+            showToast('error', `壓縮失敗：${error.message || error}`);
+            if (activeUploadJob) activeUploadJob.done = true;
+            updateUploadControlButtons();
+            document.getElementById('uploadProgressContainer').style.display = 'none';
+            document.getElementById('compressOptionsPanel')?.classList.add('active');
+          }
+        }
+
+        function renderCompressionResults(result) {
+          clearCompressionObjectUrls();
+          const list = document.getElementById('compressionResultList');
+          const summary = document.getElementById('compressionResultSummary');
+          if (!list || !summary) return;
+          list.innerHTML = '';
+          let total = 0;
+          compressionOutputs.forEach(output => {
+            total += output.blob.size;
+            const url = URL.createObjectURL(output.blob);
+            compressionObjectUrls.push(url);
+            const row = document.createElement('div');
+            row.className = 'compression-result-item';
+            const info = document.createElement('div');
+            info.innerHTML = `<div style="font-weight:700;"></div><div style="font-size:12px;color:var(--text-tertiary);margin-top:4px;">${formatUiDuration(output.duration)}・${formatUiBytes(output.blob.size)}・${output.formatLabel}</div>`;
+            info.firstElementChild.textContent = output.name;
+            const a = document.createElement('a');
+            a.className = 'compression-download';
+            a.href = url;
+            a.download = output.name;
+            a.textContent = '下載';
+            row.append(info, a);
+            list.appendChild(row);
+          });
+          summary.textContent = `原始檔 ${formatUiBytes(selectedCompressionFile?.size || 0)}，壓縮後共 ${compressionOutputs.length} 個檔案、合計 ${formatUiBytes(total)}。`;
+          document.getElementById('analyzeCompressedBtn').style.display = compressionOutputs.length === 1 ? '' : 'none';
+          document.getElementById('compressionResultPanel')?.classList.add('active');
+        }
+
+        async function analyzeCompressedOutput(reuseJob = false) {
+          if (compressionOutputs.length !== 1) {
+            showToast('info', '請先產生單一壓縮檔');
+            return;
+          }
+          const output = compressionOutputs[0];
+          if (!reuseJob || !activeUploadJob || activeUploadJob.done || activeUploadJob.cancelled) {
+            createUploadJob('analysis', selectedCompressionFile || output.blob);
+          } else {
+            activeUploadJob.kind = 'analysis';
+            activeUploadJob.done = false;
+          }
+          document.getElementById('compressionResultPanel')?.classList.remove('active');
+          await handleFileUpload(output.blob, {
+            reuseJob: true,
+            skipExtraction: true,
+            originalFile: selectedCompressionFile || output.blob,
+            displayName: output.name,
+            mimeType: output.mimeType || output.blob.type || 'audio/ogg',
+            storeBlob: output.blob,
+            startedFromCompression: true
+          });
+        }
+
+        function clearCompressionObjectUrls() {
+          compressionObjectUrls.forEach(url => URL.revokeObjectURL(url));
+          compressionObjectUrls = [];
+        }
+
+        function clearCompressionResults() {
+          clearCompressionObjectUrls();
+          compressionOutputs = [];
+          const list = document.getElementById('compressionResultList');
+          if (list) list.innerHTML = '';
+          document.getElementById('compressionResultPanel')?.classList.remove('active');
+        }
+
+        function clearCompressionSelection(resetZone = true) {
+          selectedCompressionFile = null;
+          selectedCompressionDuration = 0;
+          clearCompressionResults();
+          document.getElementById('compressOptionsPanel')?.classList.remove('active');
+          const fileInput = document.getElementById('fileInput');
+          if (fileInput) fileInput.value = '';
+          if (resetZone) document.getElementById('uploadZone').style.display = '';
+        }
+
+        function showAccessGate() {
+          const modal = document.getElementById('accessGateModal');
+          if (!modal) return;
+          const input = document.getElementById('accessGateInput');
+          if (input) input.value = getAccessToken();
+          modal.classList.add('active');
+          modal.setAttribute('aria-hidden', 'false');
+          setTimeout(() => input?.focus(), 50);
+        }
+
+        function hideAccessGate() {
+          const modal = document.getElementById('accessGateModal');
+          modal?.classList.remove('active');
+          modal?.setAttribute('aria-hidden', 'true');
+          const err = document.getElementById('accessGateError');
+          if (err) err.textContent = '';
+        }
+
+        function toggleAccessGateVisibility() {
+          const input = document.getElementById('accessGateInput');
+          const btn = document.getElementById('accessGateToggle');
+          if (!input) return;
+          const showing = input.type === 'text';
+          input.type = showing ? 'password' : 'text';
+          if (btn) btn.textContent = showing ? '顯示' : '隱藏';
+        }
+
+        async function submitAccessGate() {
+          const input = document.getElementById('accessGateInput');
+          const errorEl = document.getElementById('accessGateError');
+          const btn = document.getElementById('accessGateSubmitBtn');
+          const token = (input?.value || '').trim();
+          if (!token) {
+            if (errorEl) errorEl.textContent = '請輸入網站存取碼。';
+            input?.focus();
+            return;
+          }
+          try {
+            if (btn) { btn.disabled = true; btn.textContent = '驗證中…'; }
+            sessionStorage.setItem('meetingAccessToken', token);
+            const res = await backendFetch('/api/health', { method: 'GET' });
+            if (!res.ok) throw new Error(await backendErrorMessage(res, '網站存取碼驗證失敗'));
+            const data = await res.json();
+            if (!data.keyCount) throw new Error('後端尚未設定 Gemini API Key。');
+            loadAccessTokenInput();
+            hideAccessGate();
+            showToast('success', '網站存取碼驗證成功');
+            if (accessGateGoToCompression) {
+              accessGateGoToCompression = false;
+              navigateTo('upload');
+              switchUploadMode('compress');
+            }
+          } catch (error) {
+            sessionStorage.removeItem('meetingAccessToken');
+            if (errorEl) errorEl.textContent = error.message || '網站存取碼不正確。';
+          } finally {
+            if (btn) { btn.disabled = false; btn.textContent = '驗證並開始使用'; }
+          }
+        }
+
+        function openCompressionAfterAccess() {
+          accessGateGoToCompression = true;
+          submitAccessGate();
+        }
+
+        async function openAccessGateOnFirstUse() {
+          if (getAccessToken()) return;
+          showAccessGate();
         }
 
         function loadFromLocalStorage() {
@@ -2343,10 +3155,10 @@
             zone.addEventListener('drop', (e) => {
                 e.preventDefault();
                 zone.classList.remove('dragover');
-                if (e.dataTransfer.files.length) handleFileUpload(e.dataTransfer.files[0]);
+                if (e.dataTransfer.files.length) routeSelectedUploadFile(e.dataTransfer.files[0]);
             });
             fileInput.addEventListener('change', (e) => {
-                if (e.target.files.length) handleFileUpload(e.target.files[0]);
+                if (e.target.files.length) routeSelectedUploadFile(e.target.files[0]);
             });
 
             // Tabs
@@ -2418,11 +3230,20 @@
         }
 
         // --- Upload Logic ---
-        async function handleFileUpload(file) {
+        async function handleFileUpload(file, options = {}) {
+          const originalFile = options.originalFile || file;
+          const displayName = options.displayName || file?.name || originalFile?.name || 'meeting-audio';
+          if (!options.reuseJob) createUploadJob('analysis', originalFile);
+          else if (!activeUploadJob) createUploadJob('analysis', originalFile);
+          activeUploadJob.kind = 'analysis';
+          activeUploadJob.done = false;
+          activeUploadJob.cancelled = false;
           const promptEl = document.getElementById('uploadZone');
           const progressEl = document.getElementById('uploadProgressContainer');
           const progressFill = document.getElementById('progressBarFill');
           const progressText = document.getElementById('progressPercent');
+          const extractLabel = document.getElementById('stepLabelExtract');
+          if (extractLabel) extractLabel.textContent = options.startedFromCompression ? '使用壓縮檔' : '抽取音軌';
           
           if (!promptEl || !progressEl) return;
           
@@ -2445,6 +3266,7 @@
           function setStage(stepIndex, title, detail) {
             updateProgress(null, stepIndex);
             currentStageLabel = title;
+            setUploadJobStage(title, { abortable: false });
             const t = document.getElementById('upload-status-title');
             const d = document.getElementById('stageDetail');
             if (t) { t.style.display = ''; t.textContent = `[${stepIndex + 1}/${steps.length}] ${title}`; }
@@ -2498,10 +3320,12 @@
           }
           
           try {
+            await waitIfUploadPaused();
             await ensureBackendReady();
+            throwIfUploadCancelled();
             startStageTimer();
-            updateProgress(3, 0);
-            setStage(0, '讀取檔案', `${file.name}（${(file.size / 1048576).toFixed(1)} MB）`);
+            updateProgress(options.startedFromCompression ? 38 : 3, 0);
+            setStage(0, options.startedFromCompression ? '讀取壓縮檔' : '讀取檔案', `${displayName}（${(file.size / 1048576).toFixed(1)} MB）`);
             
             const fileSizeMB = file.size / (1024 * 1024);
             if (fileSizeMB > MAX_UPLOAD_MB) {
@@ -2513,28 +3337,37 @@
             // ---- 步驟一：抽取音軌並轉成 16kHz 單聲道 WAV ----
             // 影片會自動只留音軌（省下大量 token），純音訊檔也會被壓成 Gemini 實際使用的規格
             let mediaBlob = file;
-            let mimeType = file.type || 'audio/mpeg';
-            const wasVideo = isVideoFile(file);
+            let mimeType = String(options.mimeType || file.type || 'audio/mpeg').toLowerCase();
+            const wasVideo = isVideoFile(originalFile);
 
-            try {
-              updateProgress(6, 1);
-              setStage(1, wasVideo ? '抽取影片音軌' : '轉換音訊格式',
-                       wasVideo ? '正在從 mp4 分離音軌，影像會被丟棄' : '轉為 16kHz 單聲道');
-              const result = await extractAudioToWav(file, msg => setStageDetail(msg));
-              mediaBlob = result.blob;
-              mimeType = 'audio/wav';
-              const mins = Math.round(result.duration / 60);
-              console.log(`音軌抽取完成：${mins} 分鐘，${(mediaBlob.size / 1048576).toFixed(1)}MB（原檔 ${fileSizeMB.toFixed(1)}MB）`);
-              showToast('info', `已抽出音軌（${mins} 分鐘）${wasVideo ? '，影像已捨棄以節省費用' : ''}`);
-            } catch (convErr) {
-              console.warn('音軌抽取失敗，改用原始檔案：', convErr);
-              if (wasVideo) {
-                // 影片沒抽成音軌就直接送，token 會是音訊的十倍以上，不如擋下來
-                showToast('error', convErr.message);
-                resetUploadZone();
-                return;
+            if (options.skipExtraction) {
+              await waitIfUploadPaused();
+              throwIfUploadCancelled();
+              updateProgress(40, 1);
+              setStage(1, '使用壓縮音檔', `${displayName}・${(mediaBlob.size / 1048576).toFixed(1)} MB，不再轉成大型 WAV`);
+            } else {
+              try {
+                await waitIfUploadPaused();
+                throwIfUploadCancelled();
+                updateProgress(6, 1);
+                setStage(1, wasVideo ? '抽取影片音軌' : '轉換音訊格式',
+                         wasVideo ? '正在從影片分離音軌，影像會被丟棄' : '轉為 16kHz 單聲道');
+                const result = await extractAudioToWav(file, msg => setStageDetail(msg));
+                await waitIfUploadPaused();
+                throwIfUploadCancelled();
+                mediaBlob = result.blob;
+                mimeType = 'audio/wav';
+                const mins = Math.round(result.duration / 60);
+                console.log(`音軌抽取完成：${mins} 分鐘，${(mediaBlob.size / 1048576).toFixed(1)}MB（原檔 ${fileSizeMB.toFixed(1)}MB）`);
+                showToast('info', `已抽出音軌（${mins} 分鐘）${wasVideo ? '，影像已捨棄以節省費用' : ''}`);
+              } catch (convErr) {
+                if (activeUploadJob?.cancelled) throw new UploadCancelledError();
+                console.warn('音軌抽取失敗，改用原始檔案：', convErr);
+                if (wasVideo) {
+                  throw convErr;
+                }
+                showToast('info', '音訊轉換失敗，改用原始檔案上傳');
               }
-              showToast('info', '音訊轉換失敗，改用原始檔案上傳');
             }
 
             // ---- 步驟三：透過 Vercel 後端建立安全上傳工作 ----
@@ -2543,8 +3376,15 @@
             updateProgress(12, 2);
             setStage(2, '安全上傳音檔', `${blobSizeMB.toFixed(1)} MB，Vercel 後端正在建立 Gemini Files API 上傳工作`);
             const uploaded = await uploadViaFilesApi(
-                mediaBlob, mimeType, file.name || 'meeting-audio',
-                msg => setStageDetail(msg));
+                mediaBlob, mimeType, displayName,
+                (msg, progressInfo) => {
+                  setStageDetail(msg);
+                  if (progressInfo?.percentage !== undefined) {
+                    const base = options.startedFromCompression ? 42 : 12;
+                    const span = options.startedFromCompression ? 20 : 6;
+                    updateProgress(base + (progressInfo.percentage / 100) * span, 2);
+                  }
+                });
             updateProgress(18, 2);
             
             const prompt = `你是一個專業的研究生會議紀錄分析助手。請分析以下錄音檔，並以 JSON 格式回傳結果。
@@ -2637,6 +3477,7 @@ ${buildRecognitionHints()}
             let fakeProgress = 20;
             const aiStart = Date.now();
             const progressInterval = setInterval(() => {
+              if (activeUploadJob?.paused || activeUploadJob?.cancelled) return;
               fakeProgress += Math.random() * 1.6;
               if (fakeProgress > 85) fakeProgress = 85;
               updateProgress(fakeProgress, 3);
@@ -2648,6 +3489,12 @@ ${buildRecognitionHints()}
             
             let response;
             try {
+              await waitIfUploadPaused();
+              throwIfUploadCancelled();
+              // AI 生成已在 Vercel／Gemini 伺服器端執行。若中途終止瀏覽器請求，
+              // 伺服器工作不一定會同步停止，重送還可能造成重複用量，因此此階段採安全暫停點：
+              // 按下暫停後，會等目前 AI 回應完成，再停在下一個處理步驟。
+              setUploadJobStage('Gemini AI 分析', { abortable: false });
               response = await backendFetch('/api/gemini-generate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -2659,6 +3506,8 @@ ${buildRecognitionHints()}
                   task: 'meeting-analysis'
                 })
               });
+              await waitIfUploadPaused();
+              throwIfUploadCancelled();
             } finally {
               clearInterval(progressInterval);  // 網路錯誤時也要停掉假進度
             }
@@ -2768,7 +3617,7 @@ ${buildRecognitionHints()}
 
             // 存檔策略：原本就是音訊檔就存原檔（已壓縮、體積小很多）；
             // 影片來源才存抽出的 WAV，避免把整支影片塞進 IndexedDB
-            const blobToStore = wasVideo ? mediaBlob : file;
+            const blobToStore = options.storeBlob || (wasVideo ? mediaBlob : originalFile);
             const audioSaved = await saveAudio(newMeeting.id, blobToStore);
             if (!audioSaved) {
                 showToast('info', '分析完成，但錄音檔未能保存（可能超過瀏覽器容量），播放功能將無法使用');
@@ -2778,17 +3627,34 @@ ${buildRecognitionHints()}
             stopStageTimer();
             setStage(4, '分析完成', `逐字稿 ${newMeeting.transcript.length} 句、任務 ${newMeeting.tasks.length} 項、多加留意 ${newMeeting.implicit.length} 項`);
             updateProgress(100, 5);
+            if (activeUploadJob) {
+              activeUploadJob.done = true;
+              activeUploadJob.abortController = null;
+              activeUploadJob.abortable = false;
+              updateUploadControlButtons();
+            }
 
             setTimeout(() => {
               showToast('success', '✅ AI 分析完成！錄音已成功轉錄');
+              if (options.startedFromCompression) clearCompressionSelection(false);
               resetUploadZone();
               renderMeetingList();
               selectMeeting(newMeeting.id);
             }, 500);
             
           } catch (error) {
-            console.error('Transcription error:', error);
             stopStageTimer();
+            if (error instanceof UploadCancelledError || activeUploadJob?.cancelled) {
+              console.info('Upload cancelled by user');
+              return;
+            }
+            console.error('Transcription error:', error);
+            if (activeUploadJob) {
+              activeUploadJob.done = true;
+              activeUploadJob.abortController = null;
+              activeUploadJob.abortable = false;
+              updateUploadControlButtons();
+            }
             showToast('error', `❌ 在「${currentStageLabel || '處理'}」階段失敗：${error.message}`);
             
             const errTitle = document.getElementById('upload-status-title');
@@ -2833,27 +3699,44 @@ ${buildRecognitionHints()}
           const progressPercent = document.getElementById('progressPercent');
           const pText = document.getElementById('progressText');
           const statusTitle = document.getElementById('upload-status-title');
-          
-          if (promptEl) promptEl.style.display = ''; 
+          const detail = document.getElementById('stageDetail');
+          const elapsed = document.getElementById('stageElapsed');
+          const extractLabel = document.getElementById('stepLabelExtract');
+
+          if (activeUploadJob?.abortController) {
+            try { activeUploadJob.abortController.abort('reset'); } catch (_) {}
+          }
+          if (activeUploadJob) {
+            if (!activeUploadJob.done) activeUploadJob.cancelled = true;
+            activeUploadJob.paused = false;
+            releaseUploadPauseWaiters();
+          }
+          activeUploadJob = null;
+
+          if (promptEl) promptEl.style.display = '';
           if (progressEl) progressEl.style.display = 'none';
           if (progressFill) progressFill.style.width = '0%';
           if (progressPercent) progressPercent.textContent = '0%';
-          if (pText) pText.textContent = '分析中...';
-          if (statusTitle) statusTitle.textContent = '分析中...';
-          
+          if (pText) pText.textContent = '準備中...';
+          if (statusTitle) { statusTitle.textContent = '準備中...'; statusTitle.style.display = 'none'; }
+          if (detail) detail.textContent = '';
+          if (elapsed) elapsed.textContent = '';
+          if (extractLabel) extractLabel.textContent = currentUploadMode === 'compress' ? '壓縮錄音' : '抽取音軌';
+
           document.querySelectorAll('.progress-step').forEach(el => {
               el.classList.remove('active', 'completed');
               const icon = el.querySelector('.step-icon');
               if (icon) {
                   icon.textContent = '⏳';
-                  icon.classList.remove('spin');
+                  icon.className = 'step-icon';
               }
           });
-          const firstStep = document.getElementById('step-upload');
+          const firstStep = document.getElementById('step-read');
           if (firstStep) firstStep.classList.add('active');
-          
+
           const fileInput = document.getElementById('fileInput');
           if (fileInput) fileInput.value = '';
+          updateUploadControlButtons();
         }
 
         async function useDemoFallback() {
@@ -3960,21 +4843,24 @@ ${JSON.stringify(payload, null, 0)}`;
         // 4) 匯入完成後立即刪除暫存 Blob。Gemini API Key 全程不會傳到瀏覽器。
         async function uploadViaFilesApi(blob, mimeType, displayName, onProgress) {
             const numBytes = blob.size;
+            const normalizedMimeType = String(mimeType || blob.type || 'audio/wav').toLowerCase();
 
             if (typeof window.uploadMeetingAudioToPrivateBlob !== 'function') {
                 throw new Error('Vercel Blob 上傳模組尚未載入，請重新整理頁面後再試。');
             }
 
+            await waitIfUploadPaused();
+            throwIfUploadCancelled();
             if (onProgress) onProgress('Vercel 後端正在核發安全上傳票證…');
-            const ticketRes = await backendFetch('/api/blob-upload-ticket', {
+            const ticketRes = await runPausableFetch('/api/blob-upload-ticket', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    mimeType,
+                    mimeType: normalizedMimeType,
                     size: numBytes,
                     displayName
                 })
-            });
+            }, '取得安全上傳授權');
 
             if (!ticketRes.ok) {
                 throw new Error(await backendErrorMessage(ticketRes, '無法取得音檔上傳授權'));
@@ -3984,25 +4870,34 @@ ${JSON.stringify(payload, null, 0)}`;
                 throw new Error('Vercel 後端沒有回傳音檔上傳授權票證。');
             }
 
-            const blobInfo = await window.uploadMeetingAudioToPrivateBlob({
+            const blobInfo = await runPausableBlobUpload({
                 blob,
                 displayName,
+                mimeType: normalizedMimeType,
                 ticket: ticketData.ticket,
                 onProgress
             });
 
+            await waitIfUploadPaused();
+            throwIfUploadCancelled();
             if (onProgress) onProgress('Vercel 後端正在依 Gemini 規格匯入音檔…');
+
+            // 此階段由伺服器從 Private Blob 串流匯入 Gemini；避免中途重送造成重複工作，
+            // 因此「暫停」會在伺服器完成目前匯入後才生效。
+            setUploadJobStage('匯入 Gemini Files API', { abortable: false });
             const importRes = await backendFetch('/api/gemini-import-blob', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     blobUrl: blobInfo.url,
                     size: numBytes,
-                    mimeType,
+                    mimeType: normalizedMimeType,
                     displayName,
                     ticket: ticketData.ticket
                 })
             });
+            await waitIfUploadPaused();
+            throwIfUploadCancelled();
 
             if (!importRes.ok) {
                 throw new Error(await backendErrorMessage(importRes, '無法將音檔匯入 Gemini Files API'));
@@ -4017,18 +4912,22 @@ ${JSON.stringify(payload, null, 0)}`;
 
             let state = f.state || 'PROCESSING';
             let uri = f.uri || '';
-            let fileMimeType = f.mimeType || f.mime_type || mimeType;
+            let fileMimeType = f.mimeType || f.mime_type || normalizedMimeType;
             const fileName = f.name;
 
             for (let i = 0; i < 45 && state === 'PROCESSING'; i++) {
+                await waitIfUploadPaused();
+                throwIfUploadCancelled();
                 if (onProgress) onProgress(`Google 正在處理音檔…（${i + 1}/45）`);
                 await new Promise(r => setTimeout(r, 2000));
+                await waitIfUploadPaused();
+                throwIfUploadCancelled();
 
-                const statusRes = await backendFetch('/api/gemini-file-status', {
+                const statusRes = await runPausableFetch('/api/gemini-file-status', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ fileName, keySlot })
-                });
+                }, '查詢 Gemini 音檔狀態');
 
                 if (!statusRes.ok) {
                     throw new Error(await backendErrorMessage(statusRes, '無法取得音檔處理狀態'));
@@ -4044,6 +4943,7 @@ ${JSON.stringify(payload, null, 0)}`;
             if (state === 'PROCESSING') throw new Error('音檔處理等待逾時，請稍後再試。');
             if (!uri) throw new Error('Gemini Files API 沒有回傳可供分析的檔案位址。');
 
+            setUploadJobStage('音檔已就緒', { abortable: false });
             return { uri, mimeType: fileMimeType, keySlot, fileName };
         }
 
