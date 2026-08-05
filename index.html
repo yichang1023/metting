@@ -1379,6 +1379,104 @@
         }
         .sidebar-backdrop.active { display: block; opacity: 1; }
 
+
+        /* --- v3.3 行動裝置導覽與手勢 --- */
+        .mobile-back-btn {
+            display: none;
+            position: fixed; top: 12px; left: 64px; z-index: 60;
+            width: 42px; height: 42px;
+            border-radius: 10px;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            font-size: 18px; cursor: pointer;
+            align-items: center; justify-content: center;
+        }
+        .mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            left: 0; right: 0; bottom: 0;
+            z-index: 55;
+            min-height: 64px;
+            padding: 7px max(8px, env(safe-area-inset-right)) calc(7px + env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+            background: color-mix(in srgb, var(--surface-color) 94%, transparent);
+            border-top: 1px solid var(--border-color);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+        }
+        .mobile-nav-btn {
+            min-height: 48px;
+            border: 0;
+            border-radius: 10px;
+            background: transparent;
+            color: var(--text-secondary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            font: inherit;
+            font-size: 11px;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+        .mobile-nav-btn .icon { font-size: 20px; line-height: 1; }
+        .mobile-nav-btn.active { color: var(--accent-color); background: rgba(124, 58, 237, .12); }
+        .mobile-swipe-indicator {
+            display: none;
+            position: fixed;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%) scale(.9);
+            z-index: 80;
+            width: 54px; height: 54px;
+            border-radius: 50%;
+            align-items: center; justify-content: center;
+            color: #fff;
+            background: rgba(17, 24, 39, .82);
+            box-shadow: 0 10px 30px rgba(0,0,0,.28);
+            font-size: 24px;
+            opacity: 0;
+            transition: opacity .14s ease, transform .14s ease;
+            pointer-events: none;
+        }
+        .mobile-swipe-indicator.show { display: flex; opacity: 1; transform: translateY(-50%) scale(1); }
+        .back-to-top {
+            display: none;
+            position: fixed;
+            right: 14px;
+            bottom: calc(76px + env(safe-area-inset-bottom));
+            z-index: 54;
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            border: 1px solid var(--border-color);
+            background: var(--surface-color);
+            color: var(--text-primary);
+            box-shadow: 0 8px 24px rgba(0,0,0,.28);
+            align-items: center; justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .back-to-top.visible { display: flex; }
+        .remember-device-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            margin-top: 12px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            line-height: 1.55;
+        }
+        .remember-device-row input { margin-top: 3px; width: 17px; height: 17px; accent-color: var(--accent-color); }
+        .session-security-note {
+            margin-top: 8px;
+            color: var(--text-tertiary);
+            font-size: 12px;
+            line-height: 1.55;
+        }
+
         /* ==================== 響應式 ==================== */
 
         /* 平板：上下堆疊 */
@@ -1395,7 +1493,10 @@
         @media (max-width: 768px) {
             body, .app { height: 100vh; height: 100dvh; }
 
-            .menu-toggle { display: flex; }
+            .menu-toggle, .mobile-back-btn { display: flex; }
+            .mobile-bottom-nav { display: grid; }
+            .main { touch-action: pan-y; }
+            .main, .page { overscroll-behavior-x: none; }
 
             .sidebar {
                 position: fixed; top: 0; left: 0; bottom: 0;
@@ -1409,7 +1510,7 @@
             .sidebar.open { transform: translateX(0); }
 
             .main { width: 100%; }
-            .page { padding: 68px 16px 24px !important; }
+            .page { padding: 68px 16px calc(92px + env(safe-area-inset-bottom)) !important; }
 
             .page-title { font-size: 22px !important; }
             .page-subtitle { font-size: 13px !important; }
@@ -1437,6 +1538,9 @@
 
             /* 側欄項目按鈕在觸控裝置永遠顯示 */
             .delete-btn, .rename-btn { opacity: 1 !important; }
+            button, .btn-primary, .btn-secondary, .btn-outline, input, select, textarea { min-height: 44px; }
+            .tab-btn { min-height: 42px; }
+            .modal-actions { position: sticky; bottom: 0; padding-bottom: env(safe-area-inset-bottom); background: var(--surface-color); }
         }
 
         /* 觸控裝置：沒有 hover，按鈕直接顯示 */
@@ -1663,6 +1767,9 @@
 </head>
 <body>
     <button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()" aria-label="開啟選單">☰</button>
+    <button class="mobile-back-btn" id="mobileBackBtn" onclick="goBackPage()" aria-label="回到上一頁" title="上一頁">←</button>
+    <div class="mobile-swipe-indicator" id="mobileSwipeIndicator" aria-hidden="true">←</div>
+    <button class="back-to-top" id="backToTopBtn" onclick="scrollCurrentPageToTop()" aria-label="回到頁面頂端" title="回到頂端">↑</button>
     <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
 
     <div class="app">
@@ -1670,7 +1777,7 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="logo-title">🎓 Meeting 助手</div>
-                <div class="logo-subtitle">研究生智慧分析平台</div>
+                <div class="logo-subtitle">Meeting智慧分析平台</div>
             </div>
             
             <div class="sidebar-search">
@@ -1696,7 +1803,7 @@
             <div class="sidebar-footer">
                 <div class="user-avatar">吳</div>
                 <div class="user-info">
-                    <div class="user-name">吳老師團隊のMeeting 小助手V3.5~</div>
+                    <div class="user-name">吳老師團隊のMeeting 小助手~</div>
                     <div class="user-role">By Ichang^^</div>
                 </div>
             </div>
@@ -1708,7 +1815,7 @@
             <!-- Dashboard Page -->
             <div id="page-dashboard" class="page active">
                 <div class="page-header">
-                    <h1 class="page-title">歡迎回來，研究生！ 👋</h1>
+                    <h1 class="page-title">歡迎回來！！ 👋</h1>
                     <p class="page-subtitle">這裡是您的研究進度與 Meeting 分析摘要。</p>
                 </div>
 
@@ -2041,13 +2148,17 @@
                   </p>
                   <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
                     <input type="password" id="access-token-input" placeholder="網站存取碼（不是 Gemini API Key）" autocomplete="current-password" style="flex:1; min-width:260px; padding:12px 16px; background:var(--surface-color); border:1px solid var(--border-color); border-radius:8px; color:var(--text-primary); font-size:14px; font-family:inherit; outline:none;">
-                    <button onclick="saveAccessToken()" class="btn-primary" style="padding:12px 20px; white-space:nowrap;">💾 暫存存取碼</button>
-                    <button onclick="clearAccessToken()" class="btn-outline" style="padding:11px 18px; white-space:nowrap;">清除</button>
+                    <label class="remember-device-row" style="margin:0; min-width:190px;">
+                      <input type="checkbox" id="settingsRememberDevice" checked>
+                      <span>在此私人裝置記住 30 天</span>
+                    </label>
+                    <button onclick="saveAccessToken()" class="btn-primary" style="padding:12px 20px; white-space:nowrap;">🔐 驗證登入</button>
+                    <button onclick="clearAccessToken()" class="btn-outline" style="padding:11px 18px; white-space:nowrap;">登出此裝置</button>
                     <button onclick="checkBackendStatus(true)" class="btn-outline" style="padding:11px 18px; white-space:nowrap;">🔌 測試連線</button>
                   </div>
                   <div id="backend-status" style="margin-top:10px; font-size:13px; line-height:1.6;"></div>
                   <div class="set-desc" style="margin-top:8px;">
-                    存取碼只暫存在目前瀏覽器分頁的 sessionStorage；關閉分頁後會清除。Gemini API Key 永遠不會傳到瀏覽器。
+                    勾選「記住」後，Vercel 後端會建立最長 30 天的 HttpOnly 安全 Cookie；瀏覽器 JavaScript 無法讀取 Cookie 內容，也不會把網站存取碼明文存進 localStorage。這只保留登入狀態，不會讓本機會議資料產生雲端同步。
                   </div>
                 </div>
 
@@ -2135,7 +2246,7 @@
                     <h3 class="settings-title">關於</h3>
                     <div class="settings-row">
                         <div class="set-label">版本</div>
-                        <div class="set-desc">Meeting 助手 v3.2.0</div>
+                        <div class="set-desc">Meeting 助手 v3.3.0</div>
                     </div>
                     <div class="settings-row" style="display: block;">
                         <div class="set-label" style="margin-bottom: 8px;">快捷鍵參考</div>
@@ -2164,6 +2275,10 @@
                 <input type="password" id="accessGateInput" placeholder="輸入網站存取碼" autocomplete="current-password" onkeydown="if(event.key==='Enter') submitAccessGate();">
                 <button type="button" class="btn-outline" id="accessGateToggle" onclick="toggleAccessGateVisibility()">顯示</button>
             </div>
+            <label class="remember-device-row">
+                <input type="checkbox" id="accessGateRemember" checked>
+                <span><b>在這台私人裝置記住我 30 天</b><br>系統只儲存加密簽章的登入 Cookie，不會把網站存取碼明文寫入 localStorage。</span>
+            </label>
             <div class="access-gate-error" id="accessGateError"></div>
             <div class="access-gate-tip">
                 <b>錄音檔較大怎麼辦？</b><br>
@@ -2234,6 +2349,13 @@
         </div>
     </div>
 
+    <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="行動裝置快速導覽">
+        <button class="mobile-nav-btn active" data-mobile-target="dashboard" onclick="navigateTo('dashboard')"><span class="icon">🏠</span><span>首頁</span></button>
+        <button class="mobile-nav-btn" data-mobile-target="upload" onclick="navigateTo('upload')"><span class="icon">📤</span><span>上傳</span></button>
+        <button class="mobile-nav-btn" data-mobile-target="analysis" onclick="navigateTo('analysis')"><span class="icon">🧠</span><span>分析</span></button>
+        <button class="mobile-nav-btn" data-mobile-target="more" onclick="toggleSidebar()"><span class="icon">☰</span><span>更多</span></button>
+    </nav>
+
     <div class="toast-container" id="toastContainer"></div>
 
     <script type="module" src="/src/audio-compressor.js"></script>
@@ -2241,6 +2363,11 @@
 
     <script>
         // --- State Management ---
+        let currentPageId = null;
+        const inAppPageHistory = [];
+        let isRestoringBrowserHistory = false;
+        let accessSessionInfo = null;
+
         let appData = {
             meetings: [],
             settings: { currentMeetingId: null },
@@ -2508,7 +2635,8 @@
             initTabShortcuts();
 
             // Handle hash navigation or default to dashboard
-            navigateTo(appData.settings.currentMeetingId ? 'analysis' : 'dashboard');
+            const initialPage = appData.settings.currentMeetingId ? 'analysis' : 'dashboard';
+            navigateTo(initialPage, { replaceHistory: true, skipHistoryStack: true });
             
             if(appData.settings.currentMeetingId) {
                 selectMeeting(appData.settings.currentMeetingId, true);
@@ -2516,8 +2644,8 @@
             
             loadAccessTokenInput();
             syncCompressionOptions();
+            initMobileNavigation();
             openAccessGateOnFirstUse();
-            if (getAccessToken() && typeof checkBackendStatus === 'function') checkBackendStatus(false);
         }
 
         // ==================== V3.0 Vercel 後端連線 ====================
@@ -2530,6 +2658,7 @@
 
         function loadAccessTokenInput() {
           const input = document.getElementById('access-token-input');
+          // 安全 Cookie 無法、也不應由 JavaScript 讀回；只有本分頁暫存時才回填。
           if (input) input.value = getAccessToken();
         }
 
@@ -2542,7 +2671,7 @@
 
         async function backendFetch(path, options = {}) {
           const headers = buildApiHeaders(options.headers || {});
-          return fetch(path, { ...options, headers });
+          return fetch(path, { credentials: 'same-origin', ...options, headers });
         }
 
         async function backendErrorMessage(response, fallback = '後端服務呼叫失敗') {
@@ -2550,23 +2679,62 @@
           return data?.error?.message || `${fallback}（HTTP ${response.status}）`;
         }
 
-        function saveAccessToken() {
-          const input = document.getElementById('access-token-input');
-          const token = (input?.value || '').trim();
-          try {
-            if (token) sessionStorage.setItem('meetingAccessToken', token);
-            else sessionStorage.removeItem('meetingAccessToken');
-          } catch (e) {}
-          showToast('success', token ? '網站存取碼已暫存於本分頁' : '已清除網站存取碼');
-          checkBackendStatus(true);
+        async function createAccessSession(token, remember) {
+          const res = await fetch('/api/session-login', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ accessToken: token, remember: Boolean(remember) })
+          });
+          if (!res.ok) throw new Error(await backendErrorMessage(res, '網站存取碼驗證失敗'));
+          accessSessionInfo = await res.json();
+          // 安全 Cookie 建立後立即清除舊版分頁暫存，避免明文存取碼繼續留在瀏覽器儲存區。
+          try { sessionStorage.removeItem('meetingAccessToken'); } catch (e) {}
+          return accessSessionInfo;
         }
 
-        function clearAccessToken() {
+        async function getAccessSessionStatus() {
+          try {
+            const res = await fetch('/api/session-status', { method: 'GET', credentials: 'same-origin' });
+            if (!res.ok) return null;
+            const data = await res.json();
+            accessSessionInfo = data;
+            return data;
+          } catch (e) {
+            return null;
+          }
+        }
+
+        async function saveAccessToken() {
+          const input = document.getElementById('access-token-input');
+          const token = (input?.value || '').trim();
+          const remember = Boolean(document.getElementById('settingsRememberDevice')?.checked);
+          if (!token) {
+            showToast('error', '請先輸入網站存取碼');
+            input?.focus();
+            return;
+          }
+          try {
+            await createAccessSession(token, remember);
+            if (input) input.value = '';
+            showToast('success', remember ? '已在此裝置安全記住登入 30 天' : '已完成本次瀏覽器登入');
+            await checkBackendStatus(true);
+          } catch (error) {
+            try { sessionStorage.removeItem('meetingAccessToken'); } catch (e) {}
+            showToast('error', error.message || '網站存取碼驗證失敗');
+          }
+        }
+
+        async function clearAccessToken() {
+          try {
+            await fetch('/api/session-logout', { method: 'POST', credentials: 'same-origin' });
+          } catch (e) {}
           try { sessionStorage.removeItem('meetingAccessToken'); } catch (e) {}
+          accessSessionInfo = null;
           const input = document.getElementById('access-token-input');
           if (input) input.value = '';
-          showToast('success', '網站存取碼已清除');
-          checkBackendStatus(false);
+          showToast('success', '已登出此裝置');
+          await checkBackendStatus(false);
           showAccessGate();
         }
 
@@ -3078,6 +3246,7 @@
           const input = document.getElementById('accessGateInput');
           const errorEl = document.getElementById('accessGateError');
           const btn = document.getElementById('accessGateSubmitBtn');
+          const remember = Boolean(document.getElementById('accessGateRemember')?.checked);
           const token = (input?.value || '').trim();
           if (!token) {
             if (errorEl) errorEl.textContent = '請輸入網站存取碼。';
@@ -3086,21 +3255,22 @@
           }
           try {
             if (btn) { btn.disabled = true; btn.textContent = '驗證中…'; }
-            sessionStorage.setItem('meetingAccessToken', token);
+            const data = await createAccessSession(token, remember);
             const res = await backendFetch('/api/health', { method: 'GET' });
             if (!res.ok) throw new Error(await backendErrorMessage(res, '網站存取碼驗證失敗'));
-            const data = await res.json();
-            if (!data.keyCount) throw new Error('後端尚未設定 Gemini API Key。');
+            const health = await res.json();
+            if (!health.keyCount) throw new Error('後端尚未設定 Gemini API Key。');
+            if (input) input.value = '';
             loadAccessTokenInput();
             hideAccessGate();
-            showToast('success', '網站存取碼驗證成功');
+            showToast('success', remember ? '驗證成功，這台裝置將記住 30 天' : '網站存取碼驗證成功');
             if (accessGateGoToCompression) {
               accessGateGoToCompression = false;
               navigateTo('upload');
               switchUploadMode('compress');
             }
           } catch (error) {
-            sessionStorage.removeItem('meetingAccessToken');
+            try { sessionStorage.removeItem('meetingAccessToken'); } catch (e) {}
             if (errorEl) errorEl.textContent = error.message || '網站存取碼不正確。';
           } finally {
             if (btn) { btn.disabled = false; btn.textContent = '驗證並開始使用'; }
@@ -3113,7 +3283,17 @@
         }
 
         async function openAccessGateOnFirstUse() {
-          if (getAccessToken()) return;
+          // 從 v3.2 升級時，若舊分頁仍有 sessionStorage 存取碼，先安全換成 HttpOnly Cookie。
+          const legacyToken = getAccessToken();
+          if (legacyToken) {
+            try { await createAccessSession(legacyToken, true); } catch (e) {}
+          }
+          const session = await getAccessSessionStatus();
+          if (session?.authenticated || session?.protected === false) {
+            hideAccessGate();
+            if (typeof checkBackendStatus === 'function') checkBackendStatus(false);
+            return;
+          }
           showAccessGate();
         }
 
@@ -3202,20 +3382,41 @@
         }
 
         // --- Navigation ---
-        function navigateTo(pageId) {
+        function updateNavigationUi(pageId) {
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.nav-btn[data-target="${pageId}"]`)?.classList.add('active');
+            document.querySelectorAll('.mobile-nav-btn').forEach(btn => btn.classList.remove('active'));
+            const mobileTarget = ['dashboard', 'upload', 'analysis'].includes(pageId) ? pageId : 'more';
+            document.querySelector(`.mobile-nav-btn[data-mobile-target="${mobileTarget}"]`)?.classList.add('active');
+            const backBtn = document.getElementById('mobileBackBtn');
+            if (backBtn) backBtn.disabled = inAppPageHistory.length === 0;
+        }
+
+        function navigateTo(pageId, options = {}) {
+            const target = document.getElementById(`page-${pageId}`);
+            if (!target) return;
             if (window.innerWidth <= 768) closeSidebar();
             if (pageId === 'settings') setTimeout(loadRecognitionSettings, 0);
             if (pageId === 'trash') setTimeout(renderTrashList, 0);
-            // Update nav buttons
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            const activeBtn = document.querySelector(`.nav-btn[data-target="${pageId}"]`);
-            if (activeBtn) activeBtn.classList.add('active');
 
-            // Hide all pages, show target
+            const previous = currentPageId;
+            if (previous && previous !== pageId && !options.skipHistoryStack) {
+                inAppPageHistory.push(previous);
+                if (inAppPageHistory.length > 30) inAppPageHistory.shift();
+            }
+            currentPageId = pageId;
+            updateNavigationUi(pageId);
+
             document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-            document.getElementById(`page-${pageId}`).classList.add('active');
+            target.classList.add('active');
 
-            // Page specific logic
+            if (!options.fromPopState) {
+                const state = { meetingAssistant: true, pageId };
+                const url = `#${pageId}`;
+                if (options.replaceHistory || !history.state?.meetingAssistant) history.replaceState(state, '', url);
+                else if (previous !== pageId) history.pushState(state, '', url);
+            }
+
             if (pageId === 'dashboard') {
                 updateDashboardStats();
                 renderDashboardRecent();
@@ -3225,8 +3426,91 @@
                 renderProgress();
             } else if (pageId === 'settings') {
                 loadAccessTokenInput();
-            if (typeof checkBackendStatus === 'function') checkBackendStatus(false);
+                if (typeof checkBackendStatus === 'function') checkBackendStatus(false);
             }
+            scrollCurrentPageToTop(false);
+        }
+
+        function goBackPage() {
+            if (inAppPageHistory.length > 0) {
+                history.back();
+                return;
+            }
+            if (currentPageId !== 'dashboard') navigateTo('dashboard', { skipHistoryStack: true });
+        }
+
+        function scrollCurrentPageToTop(smooth = true) {
+            const active = document.querySelector('.page.active');
+            if (active) active.scrollTo?.({ top: 0, behavior: smooth ? 'smooth' : 'auto' });
+            document.querySelector('.main')?.scrollTo?.({ top: 0, behavior: smooth ? 'smooth' : 'auto' });
+            window.scrollTo({ top: 0, behavior: smooth ? 'smooth' : 'auto' });
+        }
+
+        function initMobileNavigation() {
+            const main = document.getElementById('mainContent');
+            const indicator = document.getElementById('mobileSwipeIndicator');
+            if (!main || main.dataset.mobileNavReady === '1') return;
+            main.dataset.mobileNavReady = '1';
+
+            let startX = 0, startY = 0, startTime = 0, tracking = false;
+            const isBlockedTarget = (target) => Boolean(target?.closest?.('input, textarea, select, button, a, [contenteditable="true"], .panel-resizer, audio, video'));
+            const modalIsOpen = () => Boolean(document.querySelector('.modal-overlay.active'));
+
+            main.addEventListener('pointerdown', (event) => {
+                if (event.pointerType !== 'touch' || window.innerWidth > 1024 || modalIsOpen() || isBlockedTarget(event.target)) return;
+                if (event.clientX > 84) return; // 從左側開始，避免和內容水平操作衝突
+                tracking = true;
+                startX = event.clientX;
+                startY = event.clientY;
+                startTime = Date.now();
+            }, { passive: true });
+
+            main.addEventListener('pointermove', (event) => {
+                if (!tracking) return;
+                const dx = event.clientX - startX;
+                const dy = Math.abs(event.clientY - startY);
+                if (dx > 36 && dy < 55) indicator?.classList.add('show');
+                if (dy > 75) { tracking = false; indicator?.classList.remove('show'); }
+            }, { passive: true });
+
+            const finishSwipe = (event) => {
+                if (!tracking) return;
+                tracking = false;
+                indicator?.classList.remove('show');
+                const dx = event.clientX - startX;
+                const dy = Math.abs(event.clientY - startY);
+                const elapsed = Date.now() - startTime;
+                if (dx >= 90 && dy <= 65 && elapsed <= 900) goBackPage();
+            };
+            main.addEventListener('pointerup', finishSwipe, { passive: true });
+            main.addEventListener('pointercancel', () => { tracking = false; indicator?.classList.remove('show'); }, { passive: true });
+
+            window.addEventListener('popstate', (event) => {
+                const pageId = event.state?.meetingAssistant ? event.state.pageId : null;
+                if (pageId && document.getElementById(`page-${pageId}`)) {
+                    if (inAppPageHistory[inAppPageHistory.length - 1] === pageId) inAppPageHistory.pop();
+                    currentPageId = null;
+                    navigateTo(pageId, { skipHistoryStack: true, fromPopState: true });
+                }
+            });
+
+            const updateTopButton = debounce(() => {
+                const y = window.scrollY || document.querySelector('.main')?.scrollTop || 0;
+                document.getElementById('backToTopBtn')?.classList.toggle('visible', window.innerWidth <= 768 && y > 500);
+            }, 80);
+            window.addEventListener('scroll', updateTopButton, { passive: true });
+            document.querySelector('.main')?.addEventListener('scroll', updateTopButton, { passive: true });
+
+            if (window.innerWidth <= 768 && !localStorage.getItem('meetingMobileGestureHintShown')) {
+                setTimeout(() => showToast('info', '手機操作：從畫面左側向右滑可返回上一頁'), 900);
+                localStorage.setItem('meetingMobileGestureHintShown', '1');
+            }
+
+            document.addEventListener('pointerdown', (event) => {
+                if (event.pointerType === 'touch' && !event.target.closest('input, textarea, select, [contenteditable="true"]')) {
+                    document.activeElement?.blur?.();
+                }
+            }, { passive: true });
         }
 
         // --- Upload Logic ---
