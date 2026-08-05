@@ -1,49 +1,23 @@
-Meeting 助手 V3.1.0 建置與安全檢查報告
-==================================================
+Meeting 助手 V3.1.1 建置與安全修正報告
 
-問題原因
-- Gemini 回報：2097152 bytes 不是 8388608-byte chunk granularity 的整數倍。
-- 舊版每段 2 MiB，違反 Gemini resumable upload 對非最後分段的要求。
-- 直接改成 8 MiB 又會超過 Vercel Function 4.5 MB request body 上限。
+修正原因
+- Chrome Console 顯示 Content Security Policy 阻擋：
+  https://vercel.com/api/blob/?pathname=...
+- 既有 `connect-src` 只允許本站、Blob 儲存網域、Gemini 與 Google APIs，未允許 Vercel Blob Client Upload 的控制端點。
 
-修正架構
-- 瀏覽器直傳 Vercel Private Blob。
-- Vercel 後端從 Private Blob 以 Range 方式讀取。
-- 後端採用 Gemini 上傳工作回傳的 chunk granularity；缺省為 8 MiB。
-- 非最後一段嚴格對齊粒度，最後一段可小於粒度。
-- Gemini 匯入後立即嘗試刪除暫存 Blob。
-
-新增檔案
-- src/blob-upload.js
-- api/blob-upload-ticket.js
-- api/blob-upload.js
-- api/gemini-import-blob.js
-- lib/upload-ticket.js
-- lib/blob-to-gemini.js
-- 01_先建立Vercel_Private_Blob.txt
-
-停用舊端點
-- api/gemini-upload-start.js 改為 HTTP 410 stub
-- api/gemini-upload-chunk.js 改為 HTTP 410 stub
+修正內容
+- `vercel.json` 的 Content-Security-Policy → connect-src 新增 `https://vercel.com`。
+- 保留 `https://*.blob.vercel-storage.com`，讓瀏覽器將音檔直接傳至 Private Blob。
+- 專案版本更新為 3.1.1。
 
 檢查結果
-- Node 自動測試：8/8 通過。
-- index.html 內嵌 JavaScript 語法：通過。
-- api、lib、src JavaScript 語法：通過。
-- 前端 Gemini API Key 輸入欄位：0。
-- 前端 Gemini Key localStorage：0。
-- 前端帶 key 的 Google API URL：0。
-- 舊 2 MiB Gemini 分段路由引用：0。
-- Private Blob client upload：已接入。
-- HMAC 短效上傳票證：已接入。
+- vercel.json JSON 語法：通過
+- package.json JSON 語法：通過
+- npm test：8/8 通過
+- npm run build：未在此環境重跑（內部 npm registry 無 @vercel/blob 2.6.1）；原 V3.1.0 已完成建置，本次僅修改 vercel.json CSP 與版本文字
 
-部署前必要條件
-1. Vercel 建立 Private Blob Store。
-2. 確認 BLOB_READ_WRITE_TOKEN 已自動加入。
-3. 新增 BLOB_UPLOAD_SIGNING_SECRET。
-4. 保留 GEMINI_API_KEY_1～3。
-5. 重新部署。
-
-限制
-- 本地環境未連接真實 Vercel Blob 與 Gemini Key，因此未執行真實音檔端到端上傳。
-- 真實部署後應先用 1～3 分鐘測試音檔驗證，再測試較長錄音。
+部署注意
+1. 將新版 `vercel.json` 上傳 GitHub 根目錄並覆蓋舊檔。
+2. 等待 Vercel 自動部署 Production。
+3. 開啟正式網址後按 Ctrl+F5。
+4. 用短音檔測試。

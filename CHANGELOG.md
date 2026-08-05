@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.1.1
+
+- 修正 Content Security Policy 阻擋 Vercel Blob Client Upload。
+- 在 `connect-src` 加入 `https://vercel.com`，允許 `@vercel/blob/client` 呼叫 `https://vercel.com/api/blob/`。
+- 保留 Private Blob 與既有 Gemini、Google API 連線白名單。
+
 ## 3.1.0
 
 - 修正 Gemini resumable upload 的 8 MiB chunk granularity 錯誤。
